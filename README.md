@@ -154,15 +154,16 @@ Bagi Dosen Pembimbing atau Penguji yang ingin menjalankan aplikasi ini di lingku
 
 ## 🔑 Kredensial Akun Pengujian (Demo)
 
-Untuk keperluan pengujian fungsi sistem, telah disediakan akun bawaan:
+Sistem login mendukung autentikasi menggunakan **Email** maupun **Username / NIS**. Untuk keperluan pengujian fungsi sistem oleh Dosen Pembimbing / Penguji, telah disediakan akun bawaan (*seeded data*):
 
-| Peran (Role) | Email | Password | Keterangan |
+| Peran (Role) | Identitas Login (Email / NIS) | Password | Profil / Keterangan |
 | :--- | :--- | :--- | :--- |
-| **Guru BK** | `guru@example.com` | `password` | Akses penuh dashboard guru, data siswa, kuisioner, dan agenda |
-| **Siswa 1** | `siswa@example.com` | `password` | Akun siswa kelas 10 (telah memiliki data respon asesmen) |
-| **Siswa 2** | `budi@example.com` | `password` | Akun siswa kelas 11 |
+| **Guru BK** | `guru@gmail.com` *(atau username: `guru`)* | `password123` | Koordinator BK (Akses penuh dashboard guru, data siswa, kuisioner asesmen, dan agenda kegiatan) |
+| **Siswa 1** | `andipratama@gmail.com` *(atau NIS: `10293`)* | `password123` | Andi Pratama (Kelas XII-1, memiliki data riwayat konseling dan respon asesmen kuisioner) |
+| **Siswa 2** | `rinaputri@gmail.com` *(atau NIS: `10294`)* | `password123` | Rina Putri (Kelas XII-2) |
+| **Siswa 3** | `budisantoso@gmail.com` *(atau NIS: `10295`)* | `password123` | Budi Santoso (Kelas XI-1) |
 
-*Catatan: Registrasi akun siswa baru juga dapat dicoba langsung melalui halaman pendaftaran (`/register`).*
+> 💡 *Catatan: Form login dapat menerima Email ataupun NIS/Username secara langsung. Pengujian pendaftaran akun siswa baru juga dapat dilakukan melalui tombol **Daftar Akun Siswa Baru** (`/register`).*
 
 ---
 
