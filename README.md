@@ -1,9 +1,5 @@
-# SIM-BK (Sistem Informasi Manajemen Bimbingan dan Konseling)
+## **Draft Source Code Praktik Lapang / Tugas Akhir**  
 
-> **Draft Source Code Praktik Lapang / Tugas Akhir**  
-> Sistem Informasi Terpadu Pelayanan Konseling, Asesmen Psikopedagogis, dan Rekam Kasus Siswa Berbasis Web.
-
----
 
 ## Ringkasan Proyek
 
@@ -165,8 +161,3 @@ Sistem login mendukung autentikasi menggunakan **Email** maupun **Username / NIS
 
 > *Catatan: Form login dapat menerima Email ataupun NIS/Username secara langsung. Pengujian pendaftaran akun siswa baru juga dapat dilakukan melalui tombol **Daftar Akun Siswa Baru** (`/register`).*
 
----
-
-## Catatan & Pernyataan Orisinalitas
-
-Draft ini disusun sebagai bagian dari pemenuhan luaran Praktik Lapang / Bimbingan Tugas Akhir. Fitur yang disajikan menitikberatkan pada kesesuaian alur kerja operasional Guru Bimbingan dan Konseling di sekolah tingkat menengah.
