@@ -5,13 +5,13 @@
 
 ---
 
-## 📌 Ringkasan Proyek
+## Ringkasan Proyek
 
 **SIM-BK** adalah aplikasi berbasis web yang dikembangkan untuk mendigitalkan dan meningkatkan efisiensi tata kelola layanan Bimbingan dan Konseling (BK) di institusi sekolah. Sistem ini dirancang untuk mempermudah Guru BK dalam mengelola agenda bimbingan, memonitor perkembangan peserta didik, melakukan asesmen diagnostik minat/bakat/permasalahan, serta menghasilkan rekam jejak bimbingan resmi yang terstandardisasi. Di sisi lain, siswa memperoleh ruang aman dan terstruktur untuk mengajukan konsultasi serta memantau perkembangan asesmen mereka.
 
 ---
 
-## 🚀 Fitur dan Spesifikasi Sistem
+## Fitur dan Spesifikasi Sistem
 
 Sistem ini dibangun dengan pemisahan hak akses berbasis peran (*Role-Based Access Control*):
 
@@ -51,7 +51,7 @@ Sistem ini dibangun dengan pemisahan hak akses berbasis peran (*Role-Based Acces
 
 ---
 
-## 🛠️ Tech Stack & Arsitektur
+## Tech Stack & Arsitektur
 
 - **Backend Framework**: [Laravel 12](https://laravel.com) (PHP 8.2+)
 - **Database Engine**: MySQL 5.7+ / MariaDB 10.4+
@@ -61,7 +61,7 @@ Sistem ini dibangun dengan pemisahan hak akses berbasis peran (*Role-Based Acces
 
 ---
 
-## 📂 Struktur Direktori Utama
+## Struktur Direktori Utama
 
 ```text
 draft_bk/
@@ -97,7 +97,7 @@ draft_bk/
 
 ---
 
-## 💻 Panduan Instalasi & Pengujian
+## Panduan Instalasi & Pengujian
 
 Bagi Dosen Pembimbing atau Penguji yang ingin menjalankan aplikasi ini di lingkungan lokal, berikut langkah-langkahnya:
 
@@ -148,11 +148,11 @@ Bagi Dosen Pembimbing atau Penguji yang ingin menjalankan aplikasi ini di lingku
    php artisan serve
    ```
    Aplikasi siap diakses melalui peramban web pada URL:  
-   👉 **`http://localhost:8000`** atau **`http://127.0.0.1:8000`**
+   **`http://localhost:8000`** atau **`http://127.0.0.1:8000`**
 
 ---
 
-## 🔑 Kredensial Akun Pengujian (Demo)
+## Kredensial Akun Pengujian (Demo)
 
 Sistem login mendukung autentikasi menggunakan **Email** maupun **Username / NIS**. Untuk keperluan pengujian fungsi sistem oleh Dosen Pembimbing / Penguji, telah disediakan akun bawaan (*seeded data*):
 
@@ -163,10 +163,10 @@ Sistem login mendukung autentikasi menggunakan **Email** maupun **Username / NIS
 | **Siswa 2** | `rinaputri@gmail.com` *(atau NIS: `10294`)* | `password123` | Rina Putri (Kelas XII-2) |
 | **Siswa 3** | `budisantoso@gmail.com` *(atau NIS: `10295`)* | `password123` | Budi Santoso (Kelas XI-1) |
 
-> 💡 *Catatan: Form login dapat menerima Email ataupun NIS/Username secara langsung. Pengujian pendaftaran akun siswa baru juga dapat dilakukan melalui tombol **Daftar Akun Siswa Baru** (`/register`).*
+> *Catatan: Form login dapat menerima Email ataupun NIS/Username secara langsung. Pengujian pendaftaran akun siswa baru juga dapat dilakukan melalui tombol **Daftar Akun Siswa Baru** (`/register`).*
 
 ---
 
-## 📄 Catatan & Pernyataan Orisinalitas
+## Catatan & Pernyataan Orisinalitas
 
 Draft ini disusun sebagai bagian dari pemenuhan luaran Praktik Lapang / Bimbingan Tugas Akhir. Fitur yang disajikan menitikberatkan pada kesesuaian alur kerja operasional Guru Bimbingan dan Konseling di sekolah tingkat menengah.
