@@ -604,7 +604,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'guru','guru@gmail.com','$2y$12$q0gKA7.SoF7r.4DrDsSdhOrLoDX6W6Ox8/VvYH.IkczhdXQppaO3a','guru','2026-09-01 17:20:44','2026-09-02 02:24:04'),(2,'10293','andipratama@gmail.com','$2y$12$NK21DVpPj4YimxfhBs8PmuiFgybSH8Cg.6XscA3vnjHzHRI15aBgi','siswa','2026-09-01 17:20:45','2026-09-01 17:35:26'),(3,'10294','rinaputri@gmail.com','$2y$12$J/JW9fIXuTj1c5LTezUW1eI5XlsxB1y2ApXPyRhgEQie/lMXqi2xi','siswa','2026-09-01 17:20:45','2026-09-01 17:35:26'),(4,'10295','budisantoso@gmail.com','$2y$12$reizcz70ChhoCx2qeWB/ieUOAa1HSBpZxMY3M35v9Wnq3rsMf8Ljm','siswa','2026-09-01 17:20:45','2026-09-01 17:35:27'),(5,'14445556','14445556@siswa.simbk.id','$2y$12$Ta7EhEEcABCdhlxBQzpT8.TaFh8Eyx45T2Vye2rI5FNkctunGfR4K','siswa','2026-09-02 02:31:35','2026-09-02 02:31:35'),(6,'12345678','cahyarahmatunnisa@gmail.com','$2y$12$LNUmArLroUf/OMkhELXwBeEHc4JCplkACr2PGgWwoZaS99Uu.VQc2','siswa','2026-09-03 04:00:05','2026-09-03 04:00:05');
+INSERT INTO `users` VALUES (1,'guru','guru@gmail.com','$2y$12$q.H3ogcafeYOCtXoRqE9hu8iOC9A.wQGQ3U9.v/56iYutA60vZMaG','guru','2026-09-01 17:20:44','2026-09-30 22:38:57'),(2,'10293','andipratama@gmail.com','$2y$12$NK21DVpPj4YimxfhBs8PmuiFgybSH8Cg.6XscA3vnjHzHRI15aBgi','siswa','2026-09-01 17:20:45','2026-09-01 17:35:26'),(3,'10294','rinaputri@gmail.com','$2y$12$J/JW9fIXuTj1c5LTezUW1eI5XlsxB1y2ApXPyRhgEQie/lMXqi2xi','siswa','2026-09-01 17:20:45','2026-09-01 17:35:26'),(4,'10295','budisantoso@gmail.com','$2y$12$reizcz70ChhoCx2qeWB/ieUOAa1HSBpZxMY3M35v9Wnq3rsMf8Ljm','siswa','2026-09-01 17:20:45','2026-09-01 17:35:27'),(5,'14445556','14445556@siswa.simbk.id','$2y$12$Ta7EhEEcABCdhlxBQzpT8.TaFh8Eyx45T2Vye2rI5FNkctunGfR4K','siswa','2026-09-02 02:31:35','2026-09-02 02:31:35'),(6,'12345678','cahyarahmatunnisa@gmail.com','$2y$12$LNUmArLroUf/OMkhELXwBeEHc4JCplkACr2PGgWwoZaS99Uu.VQc2','siswa','2026-09-03 04:00:05','2026-09-03 04:00:05');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -617,4 +617,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-01  5:26:49
+-- Dump completed on 2026-10-01  5:39:06

@@ -158,7 +158,7 @@ Sistem login mendukung autentikasi menggunakan **Email** maupun **Username / NIS
 
 | Peran (Role) | Identitas Login (Email / NIS) | Password | Profil / Keterangan |
 | :--- | :--- | :--- | :--- |
-| **Guru BK** | `guru@gmail.com` *(atau username: `guru`)* | `password123` | Koordinator BK (Akses penuh dashboard guru, data siswa, kuisioner asesmen, dan agenda kegiatan) |
+| **Guru BK** | `guru@gmail.com` *(atau username: `guru`)* | `gurubk123` | Koordinator BK (Akses penuh dashboard guru, data siswa, kuisioner asesmen, dan agenda kegiatan) |
 | **Siswa 1** | `andipratama@gmail.com` *(atau NIS: `10293`)* | `password123` | Andi Pratama (Kelas XII-1, memiliki data riwayat konseling dan respon asesmen kuisioner) |
 | **Siswa 2** | `rinaputri@gmail.com` *(atau NIS: `10294`)* | `password123` | Rina Putri (Kelas XII-2) |
 | **Siswa 3** | `budisantoso@gmail.com` *(atau NIS: `10295`)* | `password123` | Budi Santoso (Kelas XI-1) |
