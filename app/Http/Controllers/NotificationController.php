@@ -80,7 +80,7 @@ class NotificationController extends Controller
         $notif = AppNotification::create([
             'user_id' => $user->id,
             'title' => 'Uji Coba Notifikasi SIM-BK',
-            'message' => 'Notifikasi HP berhasil aktif! Anda siap menerima peringatan temu konseling & pesan baru.',
+            'message' => 'Notifikasi berhasil aktif! Anda siap menerima pembaruan jadwal konseling & agenda bimbingan.',
             'url' => $targetUrl,
             'type' => 'test',
             'is_read' => false,
