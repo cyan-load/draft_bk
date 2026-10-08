@@ -112,7 +112,7 @@
 
                 <div>
                     <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Tempat & Tanggal Lahir</span>
-                    <span class="text-xs font-semibold text-[#1E1B4B]">{{ ($student->tempat_lahir ?? '-') . ', ' . ($student->tanggal_lahir ? $student->tanggal_lahir->format('d M Y') : '-') }}</span>
+                    <span class="text-xs font-semibold text-[#1E1B4B]">{{ ($student->tempat_lahir ?? '-') . ', ' . ($student->tanggal_lahir ? \Carbon\Carbon::parse($student->tanggal_lahir)->translatedFormat('d F Y') : '-') }}</span>
                 </div>
                 <div>
                     <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Jenis Kelamin & Agama</span>

@@ -49,7 +49,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Tanggal Lahir</label>
-                    <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $student->tanggal_lahir) }}" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
+                    <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $student->tanggal_lahir ? \Carbon\Carbon::parse($student->tanggal_lahir)->format('Y-m-d') : '') }}" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Jenis Kelamin</label>
