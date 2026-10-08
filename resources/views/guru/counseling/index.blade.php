@@ -28,10 +28,18 @@
         initiateTime: 'Istirahat 1 (09:45 - 10:15 WIB)',
         initiateRoom: 'Ruang Konseling BK 1',
 
+        formatDateForInput(dStr) {
+            if (!dStr) return '{{ date('Y-m-d') }}';
+            if (typeof dStr === 'string') {
+                return dStr.split('T')[0].split(' ')[0];
+            }
+            return '{{ date('Y-m-d') }}';
+        },
+
         openApprove(c) {
             this.selectedCounselingId = c.id;
             this.selectedStudentName = c.student ? c.student.nama : 'Siswa';
-            this.selectedDate = c.preferred_date ? c.preferred_date.split('T')[0] : '{{ date('Y-m-d') }}';
+            this.selectedDate = this.formatDateForInput(c.preferred_date);
             this.selectedTime = c.preferred_time || 'Istirahat 1 (09:45 - 10:15 WIB)';
             this.selectedRoom = c.room_or_media || 'Ruang Konseling BK 1';
             this.openApproveModal = true;
@@ -40,7 +48,7 @@
         openReschedule(c) {
             this.selectedCounselingId = c.id;
             this.selectedStudentName = c.student ? c.student.nama : 'Siswa';
-            this.selectedDate = c.preferred_date ? c.preferred_date.split('T')[0] : '{{ date('Y-m-d') }}';
+            this.selectedDate = this.formatDateForInput(c.preferred_date);
             this.selectedTime = c.preferred_time || 'Istirahat 1 (09:45 - 10:15 WIB)';
             this.selectedRoom = c.room_or_media || 'Ruang Konseling BK 1';
             this.rescheduleReason = c.rescheduled_reason || '';
@@ -59,7 +67,9 @@
             this.selectedStudentName = c.student ? c.student.nama : 'Siswa';
             this.counselorNotes = c.counselor_notes || '';
             this.followUpNotes = 'Pemantauan berkala dan tindak lanjut perkembangan siswa.';
-        }" class="px-4 sm:px-6 md:px-10 py-6 md:py-8 max-w-7xl mx-auto space-y-6 pb-16 bg-white">
+            this.openCompleteModal = true;
+        }
+    }" class="px-4 sm:px-6 md:px-10 py-6 md:py-8 max-w-7xl mx-auto space-y-6 pb-16 bg-white">
 
     <!-- Header Section -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -79,7 +89,7 @@
     @if(session('success'))
         <div class="bg-[#D9F9DF] border border-[#BBF7D0] text-[#14532D] text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
             <div class="flex items-center gap-2">
-                <span>✅</span>
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 <span>{{ session('success') }}</span>
             </div>
             <button type="button" onclick="this.parentElement.remove()" class="text-[#14532D] font-bold">&times;</button>
@@ -89,10 +99,27 @@
     @if(session('error'))
         <div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
             <div class="flex items-center gap-2">
-                <span>⚠️</span>
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 <span>{{ session('error') }}</span>
             </div>
             <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 font-bold">&times;</button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
+            <div class="flex flex-col gap-1">
+                <span class="font-bold flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Terjadi kesalahan input:
+                </span>
+                <ul class="list-disc list-inside space-y-0.5">
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 font-bold text-lg">&times;</button>
         </div>
     @endif
 
@@ -140,8 +167,8 @@
             <div class="sm:col-span-3">
                 <select name="initiated_by" class="w-full px-3 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-xs font-semibold text-[#1E1B4B] outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF]">
                     <option value="">Semua Asal Layanan</option>
-                    <option value="siswa" {{ request('initiated_by') === 'siswa' ? 'selected' : '' }}>🙋‍♂️ Pengajuan Siswa</option>
-                    <option value="guru" {{ request('initiated_by') === 'guru' ? 'selected' : '' }}>👨‍🏫 Inisiasi Guru BK</option>
+                    <option value="siswa" {{ request('initiated_by') === 'siswa' ? 'selected' : '' }}>Pengajuan Siswa</option>
+                    <option value="guru" {{ request('initiated_by') === 'guru' ? 'selected' : '' }}>Inisiasi Guru BK</option>
                 </select>
             </div>
 
@@ -213,11 +240,11 @@
                             <div class="flex items-center gap-2 mt-0.5">
                                 @if(($c->initiated_by ?? 'siswa') === 'guru')
                                     <span class="px-2 py-0.5 bg-[#EEF2FF] text-[#4338CA] border border-[#C7D2FE] text-[10px] font-extrabold rounded-md flex items-center gap-1">
-                                        <span>👨‍🏫</span> Inisiasi Guru BK
+                                        Inisiasi Guru BK
                                     </span>
                                 @else
                                     <span class="px-2 py-0.5 bg-[#F8FAFF] text-[#64748B] border border-[#E2E8F0] text-[10px] font-extrabold rounded-md flex items-center gap-1">
-                                        <span>🙋‍♂️</span> Pengajuan Siswa
+                                        Pengajuan Siswa
                                     </span>
                                 @endif
 
@@ -263,17 +290,24 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#F8FAFF] p-3 rounded-2xl border border-[#E2E8F0] text-xs">
                     <div>
                         <span class="text-[10px] font-bold text-[#64748B] block uppercase tracking-wider">Tanggal Sesi</span>
-                        <span class="font-extrabold text-[#1E1B4B]">
-                            📅 {{ $c->preferred_date ? $c->preferred_date->format('d M Y') : '-' }}
+                        <span class="font-extrabold text-[#1E1B4B] flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>{{ $c->preferred_date ? $c->preferred_date->format('d M Y') : '-' }}</span>
                         </span>
                     </div>
                     <div>
                         <span class="text-[10px] font-bold text-[#64748B] block uppercase tracking-wider">Waktu / Jam</span>
-                        <span class="font-extrabold text-[#1E1B4B]">⏰ {{ $c->preferred_time ?? '-' }}</span>
+                        <span class="font-extrabold text-[#1E1B4B] flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>{{ $c->preferred_time ?? '-' }}</span>
+                        </span>
                     </div>
                     <div>
                         <span class="text-[10px] font-bold text-[#64748B] block uppercase tracking-wider">Ruang / Tempat</span>
-                        <span class="font-extrabold text-[#1E1B4B]">📍 {{ $c->room_or_media ?? 'Ruang BK' }}</span>
+                        <span class="font-extrabold text-[#1E1B4B] flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                            <span>{{ $c->room_or_media ?? 'Ruang BK' }}</span>
+                        </span>
                     </div>
                 </div>
 
@@ -288,21 +322,30 @@
                 <!-- Catatan Khusus (Reschedule / Penolakan / Penyelesaian) -->
                 @if($c->status === 'dijadwalkan ulang' && $c->rescheduled_reason)
                     <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-900 space-y-0.5">
-                        <span class="font-bold flex items-center gap-1.5">🔄 Catatan Jadwal Ulang:</span>
+                        <span class="font-bold flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Catatan Jadwal Ulang:
+                        </span>
                         <p class="text-indigo-800 font-medium">{{ $c->rescheduled_reason }}</p>
                     </div>
                 @endif
 
                 @if($c->status === 'ditolak' && $c->rejection_reason)
                     <div class="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-900 space-y-0.5">
-                        <span class="font-bold flex items-center gap-1.5">❌ Alasan Penolakan:</span>
+                        <span class="font-bold flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            Alasan Penolakan:
+                        </span>
                         <p class="text-rose-800 font-medium">{{ $c->rejection_reason }}</p>
                     </div>
                 @endif
 
                 @if($c->status === 'selesai' && $c->counselor_notes)
                     <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-900 space-y-0.5">
-                        <span class="font-bold flex items-center gap-1.5">📋 Catatan Konselor / Hasil Layanan:</span>
+                        <span class="font-bold flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Catatan Konselor / Hasil Layanan:
+                        </span>
                         <p class="text-emerald-800 font-medium">{{ $c->counselor_notes }}</p>
                     </div>
                 @endif
@@ -459,10 +502,11 @@
 
             <p class="text-xs text-[#64748B]">Setujui jadwal konseling untuk <strong class="text-[#1E1B4B]" x-text="selectedStudentName"></strong>. Jadwal akan otomatis dicatat di Kalender Kegiatan BK.</p>
 
-            <form action="{{ route('guru.counseling.update_status', ['id' => 0]) }}" :action="'/guru/counseling/' + selectedCounselingId + '/status'" method="POST" class="space-y-3">
+            <form :action="'/guru/counseling/' + selectedCounselingId + '/status'" method="POST" class="space-y-3">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="action" value="approve">
+                <input type="hidden" name="counseling_id" :value="selectedCounselingId">
 
                 <div>
                     <label class="text-xs font-bold text-[#1E1B4B] block mb-1">Tanggal Disetujui</label>
@@ -501,6 +545,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="action" value="reschedule">
+                <input type="hidden" name="counseling_id" :value="selectedCounselingId">
 
                 <div>
                     <label class="text-xs font-bold text-[#1E1B4B] block mb-1">Tanggal Baru <span class="text-rose-500">*</span></label>
@@ -544,6 +589,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="counseling_id" :value="selectedCounselingId">
 
                 <div>
                     <label class="text-xs font-bold text-[#1E1B4B] block mb-1">Alasan Penolakan / Pembatalan <span class="text-rose-500">*</span></label>
@@ -575,6 +621,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="action" value="complete">
+                <input type="hidden" name="counseling_id" :value="selectedCounselingId">
 
                 <div>
                     <label class="text-xs font-bold text-[#1E1B4B] block mb-1">Catatan Layanan / Hasil Pembahasan <span class="text-rose-500">*</span></label>

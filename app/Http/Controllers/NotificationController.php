@@ -79,7 +79,7 @@ class NotificationController extends Controller
 
         $notif = AppNotification::create([
             'user_id' => $user->id,
-            'title' => '🔔 Uji Coba Notifikasi SIM-BK',
+            'title' => 'Uji Coba Notifikasi SIM-BK',
             'message' => 'Notifikasi HP berhasil aktif! Anda siap menerima peringatan temu konseling & pesan baru.',
             'url' => $targetUrl,
             'type' => 'test',
@@ -116,7 +116,7 @@ class NotificationController extends Controller
                 if (!$alreadyNotified) {
                     AppNotification::create([
                         'user_id' => $user->id,
-                        'title' => '📅 Pengingat Kegiatan BK Hari Ini',
+                        'title' => 'Pengingat Kegiatan BK Hari Ini',
                         'message' => "Agenda: {$event->title}" . ($event->start_time ? " ({$event->start_time})" : "") . ($event->location ? " di {$event->location}" : ""),
                         'url' => '/guru/calendar',
                         'type' => 'calendar_reminder',
@@ -141,7 +141,7 @@ class NotificationController extends Controller
                 if (!$alreadyNotified) {
                     AppNotification::create([
                         'user_id' => $user->id,
-                        'title' => '🔔 Pengingat Jadwal Konseling Hari Ini',
+                        'title' => 'Pengingat Jadwal Konseling Hari Ini',
                         'message' => "Anda memiliki temu bimbingan bersama Guru BK hari ini" . ($c->preferred_time ? " pukul {$c->preferred_time}" : "") . " di " . ($c->room_or_media ?? 'Ruang BK'),
                         'url' => '/siswa/counseling',
                         'type' => 'counseling_reminder',

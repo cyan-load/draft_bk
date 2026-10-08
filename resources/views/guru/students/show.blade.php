@@ -82,17 +82,49 @@
             </div>
 
             <div class="w-full border-t border-[#E2E8F0] mt-6 pt-6 text-left space-y-4">
+                <div class="p-3 bg-[#F8FAFF] rounded-2xl border border-[#E2E8F0] space-y-2.5">
+                    <span class="text-[10px] font-extrabold text-[#4338CA] uppercase tracking-wider block">Informasi Orang Tua / Wali</span>
+                    <div>
+                        <span class="text-[11px] font-bold text-[#64748B] block">Nama Ayah</span>
+                        <span class="text-xs font-extrabold text-[#1E1B4B]">{{ $student->nama_ayah ?? '-' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-[#64748B] block">Nama Ibu</span>
+                        <span class="text-xs font-extrabold text-[#1E1B4B]">{{ $student->nama_ibu ?? '-' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-[#64748B] block">No. Telp Orang Tua</span>
+                        <span class="text-xs font-extrabold text-[#1E1B4B]">{{ $student->nomor_telepon_orang_tua ?? '-' }}</span>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-[#EEF2FF] rounded-2xl border border-[#C7D2FE] space-y-2.5">
+                    <span class="text-[10px] font-extrabold text-[#312E81] uppercase tracking-wider block">Minat, Bakat & Cita-Cita</span>
+                    <div>
+                        <span class="text-[11px] font-bold text-[#64748B] block">Minat & Bakat (Hobi)</span>
+                        <span class="text-xs font-extrabold text-[#1E1B4B]">{{ $student->hobi ?? '-' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-[#64748B] block">Cita-Cita / Orientasi Masa Depan</span>
+                        <span class="text-xs font-extrabold text-[#1E1B4B]">{{ $student->cita_cita ?? '-' }}</span>
+                    </div>
+                </div>
+
                 <div>
-                    <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">No. Telepon / WhatsApp</span>
-                    <span class="text-sm font-semibold text-[#1E1B4B]">{{ $student->nomor_telepon ?? '-' }}</span>
+                    <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Tempat & Tanggal Lahir</span>
+                    <span class="text-xs font-semibold text-[#1E1B4B]">{{ ($student->tempat_lahir ?? '-') . ', ' . ($student->tanggal_lahir ? $student->tanggal_lahir->format('d M Y') : '-') }}</span>
                 </div>
                 <div>
-                    <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">No. Telepon Orang Tua</span>
-                    <span class="text-sm font-semibold text-[#1E1B4B]">{{ $student->nomor_telepon_orang_tua ?? '-' }}</span>
+                    <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Jenis Kelamin & Agama</span>
+                    <span class="text-xs font-semibold text-[#1E1B4B]">{{ ($student->jenis_kelamin ?? '-') . ' • ' . ($student->agama ?? '-') }}</span>
+                </div>
+                <div>
+                    <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">No. Telepon / WhatsApp Siswa</span>
+                    <span class="text-xs font-semibold text-[#1E1B4B]">{{ $student->nomor_telepon ?? '-' }}</span>
                 </div>
                 <div>
                     <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Alamat Lengkap</span>
-                    <span class="text-sm font-semibold text-[#1E1B4B] leading-relaxed">{{ $student->alamat ?? '-' }}</span>
+                    <span class="text-xs font-semibold text-[#1E1B4B] leading-relaxed">{{ $student->alamat ?? '-' }}</span>
                 </div>
                 <div>
                     <span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Akun Login Siswa</span>
@@ -155,7 +187,7 @@
                                         Bidang: {{ $note->kategori }}
                                     </span>
                                 </div>
-                                <span class="text-xs text-[#64748B] font-medium">📅 {{ $note->tanggal ? $note->tanggal->format('d F Y') : '-' }}</span>
+                                <span class="text-xs text-[#64748B] font-medium flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> {{ $note->tanggal ? $note->tanggal->format('d F Y') : '-' }}</span>
                             </div>
 
                             <div>
@@ -301,8 +333,10 @@
                                         {{ $session->category }}
                                     </span>
                                 </div>
-                                <span class="text-xs text-[#64748B] font-medium">
-                                    📅 {{ $session->preferred_date ? $session->preferred_date->format('d M Y') : '-' }} • ⏰ {{ $session->preferred_time ?? '-' }}
+                                <span class="text-xs text-[#64748B] font-medium flex items-center gap-2">
+                                    <span class="inline-flex items-center gap-1"><svg class="w-3.5 h-3.5 text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> {{ $session->preferred_date ? $session->preferred_date->format('d M Y') : '-' }}</span>
+                                    <span>•</span>
+                                    <span class="inline-flex items-center gap-1"><svg class="w-3.5 h-3.5 text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $session->preferred_time ?? '-' }}</span>
                                 </span>
                             </div>
 

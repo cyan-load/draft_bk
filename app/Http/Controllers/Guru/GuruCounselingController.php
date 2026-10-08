@@ -62,26 +62,28 @@ class GuruCounselingController extends Controller
     {
         $request->validate([
             'student_id' => 'required|exists:students,id',
-            'category' => 'required|string|in:Pribadi,Belajar,Karir,Sosial',
+            'category' => 'required|string|in:Pribadi,Belajar,Karir,Karier,Sosial',
             'topic' => 'required|string',
             'preferred_date' => 'required|date',
             'preferred_time' => 'required|string',
             'room_or_media' => 'nullable|string',
         ]);
 
+        $category = in_array($request->category, ['Karir', 'Karier']) ? 'Karir' : $request->category;
         $targetDate = $request->preferred_date;
         $targetTime = $request->preferred_time;
 
-        // 1. Cek bentrok di tabel CalendarEvent
+        // 1. Cek bentrok di tabel CalendarEvent (hanya agenda umum, bukan phantom konseling)
         $conflictEvent = CalendarEvent::whereDate('event_date', $targetDate)
             ->where('start_time', $targetTime)
+            ->where('category', '!=', 'Konseling Individu')
             ->first();
 
         // 2. Cek bentrok di tabel CounselingSession yang sudah aktif
         $conflictCounseling = CounselingSession::with('student')
             ->whereDate('preferred_date', $targetDate)
             ->where('preferred_time', $targetTime)
-            ->whereIn('status', ['disetujui', 'dijadwalkan ulang', 'menunggu'])
+            ->whereIn('status', ['disetujui', 'dijadwalkan ulang'])
             ->first();
 
         if ($conflictEvent || $conflictCounseling) {
@@ -94,25 +96,13 @@ class GuruCounselingController extends Controller
         $session = CounselingSession::create([
             'student_id' => $student->id,
             'guru_id' => Auth::id(),
-            'category' => $request->category,
+            'category' => $category,
             'topic' => $request->topic,
             'preferred_date' => $request->preferred_date,
             'preferred_time' => $request->preferred_time,
             'room_or_media' => $request->room_or_media ?? 'Ruang BK',
             'status' => 'disetujui',
             'initiated_by' => 'guru',
-        ]);
-
-        // Otomatis masukkan ke Agenda Kalender Kegiatan BK
-        CalendarEvent::create([
-            'user_id' => Auth::id(),
-            'title' => 'Konseling: ' . $student->nama . ' (' . $request->category . ')',
-            'event_date' => $request->preferred_date,
-            'start_time' => $request->preferred_time,
-            'end_time' => null,
-            'location' => $request->room_or_media ?? 'Ruang BK',
-            'category' => 'Konseling Individu',
-            'description' => 'Topik: ' . $request->topic . "\nSiswa: " . $student->nama . " (Kelas " . $student->kelas . ")\nInisiasi: Guru BK",
         ]);
 
         // Kirim Notifikasi Sistem ke Siswa
@@ -131,7 +121,7 @@ class GuruCounselingController extends Controller
 
     public function updateStatus(Request $request, $id = null)
     {
-        $id = $id ?? $request->counseling_id;
+        $id = (!empty($id) && $id !== '0' && $id !== 'null') ? $id : $request->counseling_id;
         $counseling = CounselingSession::findOrFail($id);
 
         $request->validate([
@@ -142,6 +132,7 @@ class GuruCounselingController extends Controller
             'rejection_reason' => 'nullable|string',
             'rescheduled_reason' => 'nullable|string',
             'counselor_notes' => 'nullable|string',
+            'follow_up' => 'nullable|string',
         ]);
 
         $action = $request->action;
@@ -154,6 +145,7 @@ class GuruCounselingController extends Controller
             // Cek bentrok jadwal lain
             $conflictEvent = CalendarEvent::whereDate('event_date', $targetDate)
                 ->where('start_time', $targetTime)
+                ->where('category', '!=', 'Konseling Individu')
                 ->first();
 
             $conflictCounseling = CounselingSession::with('student')
@@ -174,18 +166,6 @@ class GuruCounselingController extends Controller
                 'preferred_date' => $targetDate,
                 'preferred_time' => $targetTime,
                 'room_or_media' => $request->room_or_media ?? ($counseling->room_or_media ?? 'Ruang BK'),
-            ]);
-
-            // Otomatis masukkan ke Agenda Kalender Kegiatan BK
-            CalendarEvent::create([
-                'user_id' => Auth::id(),
-                'title' => 'Konseling: ' . ($student->nama ?? 'Siswa') . ' (' . ($counseling->category ?? 'Bimbingan') . ')',
-                'event_date' => $targetDate,
-                'start_time' => $targetTime ?? '08:00',
-                'end_time' => null,
-                'location' => $counseling->room_or_media ?? 'Ruang BK',
-                'category' => 'Konseling Individu',
-                'description' => 'Topik: ' . $counseling->topic . "\nSiswa: " . ($student->nama ?? '-') . " (Kelas " . ($student->kelas ?? '-') . ")",
             ]);
 
             if ($student && $student->user) {
@@ -209,6 +189,7 @@ class GuruCounselingController extends Controller
             // Cek bentrok jadwal lain
             $conflictEvent = CalendarEvent::whereDate('event_date', $targetDate)
                 ->where('start_time', $targetTime)
+                ->where('category', '!=', 'Konseling Individu')
                 ->first();
 
             $conflictCounseling = CounselingSession::with('student')
@@ -230,18 +211,6 @@ class GuruCounselingController extends Controller
                 'preferred_time' => $targetTime,
                 'room_or_media' => $request->room_or_media ?? ($counseling->room_or_media ?? 'Ruang BK'),
                 'rescheduled_reason' => $request->rescheduled_reason ?? 'Jadwal disesuaikan dengan ketersediaan ruang/waktu.',
-            ]);
-
-            // Masukkan perubahan ke Agenda Kalender
-            CalendarEvent::create([
-                'user_id' => Auth::id(),
-                'title' => 'Konseling (Jadwal Ulang): ' . ($student->nama ?? 'Siswa') . ' (' . ($counseling->category ?? 'Bimbingan') . ')',
-                'event_date' => $targetDate,
-                'start_time' => $targetTime,
-                'end_time' => null,
-                'location' => $counseling->room_or_media ?? 'Ruang BK',
-                'category' => 'Konseling Individu',
-                'description' => 'Topik: ' . $counseling->topic . "\nSiswa: " . ($student->nama ?? '-') . " (Kelas " . ($student->kelas ?? '-') . ")\nKeterangan Reschedule: " . ($request->rescheduled_reason ?? '-'),
             ]);
 
             if ($student && $student->user) {
@@ -273,6 +242,8 @@ class GuruCounselingController extends Controller
             $msg = 'Pengajuan konseling telah ditolak.';
         } elseif ($action === 'complete') {
             $notesText = $request->counselor_notes ?? 'Sesi konseling telah diselesaikan.';
+            $followUpText = $request->follow_up ?? 'Pemantauan berkala dan tindak lanjut perkembangan siswa.';
+
             $counseling->update([
                 'status' => 'selesai',
                 'guru_id' => Auth::id(),
@@ -284,11 +255,11 @@ class GuruCounselingController extends Controller
             CounselingNote::create([
                 'student_id' => $student->id,
                 'guru_id' => Auth::id(),
-                'tanggal' => now(),
+                'tanggal' => $counseling->preferred_date ?? now(),
                 'kategori' => $counseling->category ?? 'Pribadi',
                 'keluhan_masalah' => $counseling->topic ?? 'Konseling Bimbingan',
                 'layanan_diberikan' => $notesText,
-                'tindak_lanjut_evaluasi' => $request->follow_up ?? 'Pemantauan berkala dan tindak lanjut perkembangan siswa.',
+                'tindak_lanjut_evaluasi' => $followUpText,
                 'status' => 'Selesai / Teratasi',
             ]);
 

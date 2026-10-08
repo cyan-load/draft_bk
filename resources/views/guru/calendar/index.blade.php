@@ -13,8 +13,10 @@
         events: {{ Js::from($events->map(function($e) {
             return [
                 'id' => $e->id,
+                'source_id' => $e->source_id ?? $e->id,
+                'source_type' => $e->source_type ?? 'event',
                 'title' => $e->title,
-                'date' => $e->event_date->format('Y-m-d'),
+                'date' => is_string($e->event_date) ? $e->event_date : ($e->event_date ? $e->event_date->format('Y-m-d') : $e->date),
                 'start_time' => $e->start_time,
                 'end_time' => $e->end_time,
                 'location' => $e->location,
@@ -38,6 +40,13 @@
         formDescription: '',
 
         monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+
+        formatLocalDate(d = new Date()) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        },
 
         get monthTitle() {
             return this.monthNames[this.currentMonth] + ' ' + this.currentYear;
@@ -65,7 +74,7 @@
             const now = new Date();
             this.currentYear = now.getFullYear();
             this.currentMonth = now.getMonth();
-            this.selectedDateStr = now.toISOString().split('T')[0];
+            this.selectedDateStr = this.formatLocalDate(now);
         },
 
         // Menghitung hari dalam bulan aktif
@@ -74,6 +83,7 @@
             const startOffset = (firstDayIndex + 6) % 7;
             const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
             const daysInPrevMonth = new Date(this.currentYear, this.currentMonth, 0).getDate();
+            const todayStr = this.formatLocalDate(new Date());
 
             const days = [];
 
@@ -87,7 +97,7 @@
                     dayNum: dayNum,
                     dateStr: dateStr,
                     isCurrentMonth: false,
-                    isToday: dateStr === new Date().toISOString().split('T')[0],
+                    isToday: dateStr === todayStr,
                     events: this.getEventsForDate(dateStr)
                 });
             }
@@ -99,7 +109,7 @@
                     dayNum: i,
                     dateStr: dateStr,
                     isCurrentMonth: true,
-                    isToday: dateStr === new Date().toISOString().split('T')[0],
+                    isToday: dateStr === todayStr,
                     events: this.getEventsForDate(dateStr)
                 });
             }
@@ -115,7 +125,7 @@
                     dayNum: i,
                     dateStr: dateStr,
                     isCurrentMonth: false,
-                    isToday: dateStr === new Date().toISOString().split('T')[0],
+                    isToday: dateStr === todayStr,
                     events: this.getEventsForDate(dateStr)
                 });
             }
@@ -350,16 +360,26 @@
                             <div class="flex items-center justify-between">
                                 <span :class="getCategoryBadgeClass(ev.category)" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" x-text="ev.category"></span>
                                 <div class="flex items-center gap-1">
-                                    <button @click="openEdit(ev)" class="p-1.5 text-[#64748B] hover:text-[#1E1B4B] hover:bg-slate-200/60 rounded-lg cursor-pointer transition-colors" title="Edit Agenda">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </button>
-                                    <form :action="'/guru/calendar/' + ev.id" method="POST" onsubmit="return confirm('Hapus kegiatan ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors" title="Hapus Agenda">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
+                                    <template x-if="ev.source_type === 'event'">
+                                        <div class="flex items-center gap-1">
+                                            <button @click="openEdit(ev)" class="p-1.5 text-[#64748B] hover:text-[#1E1B4B] hover:bg-slate-200/60 rounded-lg cursor-pointer transition-colors" title="Edit Agenda">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            </button>
+                                            <form :action="'/guru/calendar/' + ev.source_id" method="POST" onsubmit="return confirm('Hapus kegiatan ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors" title="Hapus Agenda">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </template>
+                                    <template x-if="ev.source_type === 'counseling'">
+                                        <a href="{{ route('guru.counseling.index') }}" class="px-2 py-1 bg-[#EEF2FF] hover:bg-[#E0E7FF] text-[#4338CA] text-[10px] font-bold rounded-lg transition-colors inline-flex items-center gap-1" title="Kelola di Menu Konseling">
+                                            <span>Kelola Sesi</span>
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </a>
+                                    </template>
                                 </div>
                             </div>
 
@@ -439,8 +459,8 @@
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#64748B] pt-1">
-                            <p>📍 Lokasi: <strong class="text-[#1E1B4B]" x-text="ev.location || 'Ruang BK'"></strong></p>
-                            <p>📅 Tanggal: <strong class="text-[#1E1B4B]" x-text="ev.date"></strong></p>
+                            <p class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg> <span>Lokasi:</span> <strong class="text-[#1E1B4B]" x-text="ev.location || 'Ruang BK'"></strong></p>
+                            <p class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> <span>Tanggal:</span> <strong class="text-[#1E1B4B]" x-text="ev.date"></strong></p>
                         </div>
 
                         <template x-if="ev.description">
@@ -475,30 +495,46 @@
                 <div class="p-4 bg-[#F8FAFF] hover:bg-white border border-[#E2E8F0] rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
                     <div class="space-y-1 flex-1">
                         <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase
-                                @if($ev->category === 'Konseling') bg-[#9FA1FF] text-[#1E1B4B] border border-[#8E90FF]
-                                @elseif($ev->category === 'Bimbingan Klasikal') bg-[#B5BAFF]/40 text-[#1E1B4B] border border-[#B5BAFF]
-                                @elseif($ev->category === 'Home Visit') bg-amber-100 text-amber-900 border border-amber-200
-                                @else bg-[#AEE2FF]/40 text-[#0369A1] border border-[#AEE2FF] @endif">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                                :class="getCategoryBadgeClass('{{ $ev->category }}')">
                                 {{ $ev->category }}
                             </span>
-                            <span class="text-xs font-semibold text-[#64748B]">📅 {{ $ev->event_date->format('d F Y') }} ({{ $ev->start_time }} - {{ $ev->end_time }} WIB)</span>
+                            <span class="text-xs font-semibold text-[#64748B] flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span>{{ is_string($ev->event_date) ? date('d F Y', strtotime($ev->event_date)) : ($ev->event_date ? $ev->event_date->format('d F Y') : '-') }} ({{ $ev->start_time ?? '-' }}{{ $ev->end_time ? ' - ' . $ev->end_time : '' }} WIB)</span>
+                            </span>
                         </div>
                         <h4 class="font-bold text-sm text-[#1E1B4B]">{{ $ev->title }}</h4>
-                        <p class="text-xs text-[#64748B]">📍 {{ $ev->location ?? 'Ruang BK' }} • {{ $ev->description }}</p>
+                        <div class="text-xs text-[#64748B] flex items-center gap-1.5 flex-wrap">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                                <span>{{ $ev->location ?? 'Ruang BK' }}</span>
+                            </span>
+                            @if($ev->description)
+                                <span>•</span>
+                                <span>{{ $ev->description }}</span>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-2 shrink-0">
-                        <button @click="openEdit({ id: {{ $ev->id }}, title: `{{ addslashes($ev->title) }}`, date: '{{ $ev->event_date->format('Y-m-d') }}', start_time: '{{ $ev->start_time }}', end_time: '{{ $ev->end_time }}', location: `{{ addslashes($ev->location) }}`, category: '{{ $ev->category }}', description: `{{ addslashes($ev->description) }}` })" class="px-3 py-1.5 bg-[#F8FAFF] hover:bg-[#B5BAFF]/30 text-[#1E1B4B] border border-[#E2E8F0] text-xs font-bold rounded-xl transition-all cursor-pointer">
-                            Edit
-                        </button>
-                        <form action="{{ route('guru.calendar.destroy', $ev->id) }}" method="POST" onsubmit="return confirm('Hapus kegiatan ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl transition-all cursor-pointer">
-                                Hapus
+                        @if(($ev->source_type ?? 'event') === 'event')
+                            <button @click="openEdit({ id: '{{ $ev->id }}', source_id: '{{ $ev->source_id ?? $ev->id }}', title: `{{ addslashes($ev->title) }}`, date: '{{ is_string($ev->event_date) ? $ev->event_date : ($ev->event_date ? $ev->event_date->format('Y-m-d') : '') }}', start_time: '{{ $ev->start_time }}', end_time: '{{ $ev->end_time }}', location: `{{ addslashes($ev->location ?? '') }}`, category: '{{ $ev->category }}', description: `{{ addslashes($ev->description ?? '') }}` })" class="px-3 py-1.5 bg-[#F8FAFF] hover:bg-[#B5BAFF]/30 text-[#1E1B4B] border border-[#E2E8F0] text-xs font-bold rounded-xl transition-all cursor-pointer">
+                                Edit
                             </button>
-                        </form>
+                            <form action="{{ route('guru.calendar.destroy', $ev->source_id ?? $ev->id) }}" method="POST" onsubmit="return confirm('Hapus kegiatan ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl transition-all cursor-pointer">
+                                    Hapus
+                                </button>
+                            </form>
+                        @else
+                            <a href="{{ route('guru.counseling.index') }}" class="px-3 py-1.5 bg-[#EEF2FF] hover:bg-[#E0E7FF] text-[#4338CA] text-xs font-bold rounded-xl transition-all inline-flex items-center gap-1">
+                                <span>Kelola di Menu Konseling</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </a>
+                        @endif
                     </div>
                 </div>
             @empty
@@ -637,6 +673,56 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL AGENDA / KONSELING -->
+    <div x-show="openDetailModal" x-cloak class="fixed inset-0 z-[9999] overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div @click.away="openDetailModal = false" class="bg-white rounded-3xl border border-[#E2E8F0] max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl space-y-5 relative">
+            <div class="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+                <div class="flex items-center gap-2">
+                    <span :class="getCategoryBadgeClass(selectedEvent?.category)" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase" x-text="selectedEvent?.category"></span>
+                    <span class="text-xs font-bold text-[#64748B]" x-text="selectedEvent?.date"></span>
+                </div>
+                <button type="button" @click="openDetailModal = false" class="w-8 h-8 rounded-full bg-[#F8FAFF] hover:bg-[#E2E8F0] text-[#1E1B4B] flex items-center justify-center font-bold text-lg cursor-pointer transition-all">&times;</button>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-extrabold text-[#1E1B4B]" x-text="selectedEvent?.title"></h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#F8FAFF] p-3.5 rounded-2xl border border-[#E2E8F0]">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block">Waktu / Jam</span>
+                        <span class="font-bold text-[#1E1B4B]" x-text="(selectedEvent?.start_time || '-') + (selectedEvent?.end_time ? ' - ' + selectedEvent?.end_time : '') + ' WIB'"></span>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block">Lokasi / Tempat</span>
+                        <span class="font-bold text-[#1E1B4B]" x-text="selectedEvent?.location || 'Ruang BK'"></span>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-xs font-bold text-[#64748B] block mb-1">Keterangan / Rincian:</span>
+                    <p class="text-xs text-[#1E293B] leading-relaxed bg-white p-3 rounded-2xl border border-[#E2E8F0] whitespace-pre-line" x-text="selectedEvent?.description || 'Tidak ada uraian tambahan.'"></p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#E2E8F0]">
+                <template x-if="selectedEvent?.source_type === 'counseling'">
+                    <a href="{{ route('guru.counseling.index') }}" class="px-4 py-2 bg-[#9FA1FF] hover:bg-[#8E90FF] text-[#1E1B4B] text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5">
+                        <span>Buka di Menu Konseling</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                </template>
+                <template x-if="selectedEvent?.source_type === 'event'">
+                    <button type="button" @click="openEdit(selectedEvent)" class="px-4 py-2 bg-[#9FA1FF] hover:bg-[#8E90FF] text-[#1E1B4B] text-xs font-bold rounded-xl shadow-xs transition-all">
+                        Edit Agenda
+                    </button>
+                </template>
+                <button type="button" @click="openDetailModal = false" class="px-4 py-2 bg-[#F8FAFF] hover:bg-[#E2E8F0] text-[#64748B] text-xs font-bold rounded-xl transition-all">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 

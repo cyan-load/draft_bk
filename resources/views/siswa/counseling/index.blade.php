@@ -120,12 +120,14 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <!-- Asal Layanan -->
                         @if(($c->initiated_by ?? 'siswa') === 'guru')
-                            <span class="px-2.5 py-1 bg-[#EEF2FF] text-[#4338CA] border border-[#C7D2FE] text-[10px] font-extrabold rounded-lg flex items-center gap-1">
-                                <span>👨‍🏫</span> Inisiasi Guru BK
+                            <span class="px-2.5 py-1 bg-[#EEF2FF] text-[#4338CA] border border-[#C7D2FE] text-[10px] font-extrabold rounded-lg flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-[#4338CA]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                <span>Inisiasi Guru BK</span>
                             </span>
                         @else
-                            <span class="px-2.5 py-1 bg-[#F8FAFF] text-[#64748B] border border-[#E2E8F0] text-[10px] font-extrabold rounded-lg flex items-center gap-1">
-                                <span>🙋‍♂️</span> Pengajuan Mandiri
+                            <span class="px-2.5 py-1 bg-[#F8FAFF] text-[#64748B] border border-[#E2E8F0] text-[10px] font-extrabold rounded-lg flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-[#64748B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                <span>Pengajuan Mandiri</span>
                             </span>
                         @endif
 

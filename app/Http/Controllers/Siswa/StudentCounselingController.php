@@ -50,15 +50,17 @@ class StudentCounselingController extends Controller
         }
 
         $request->validate([
-            'category' => 'required|string|in:Pribadi,Belajar,Karir,Sosial',
+            'category' => 'required|string|in:Pribadi,Belajar,Karir,Karier,Sosial',
             'topic' => 'required|string|max:1000',
             'preferred_date' => 'required|date|after_or_equal:today',
             'preferred_time' => 'required|string',
         ]);
 
+        $category = in_array($request->category, ['Karir', 'Karier']) ? 'Karir' : $request->category;
+
         $session = CounselingSession::create([
             'student_id' => $student->id,
-            'category' => $request->category,
+            'category' => $category,
             'topic' => $request->topic,
             'preferred_date' => $request->preferred_date,
             'preferred_time' => $request->preferred_time,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\CalendarEvent;
+use App\Models\CounselingSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,17 +12,68 @@ class GuruCalendarController extends Controller
 {
     public function index(Request $request)
     {
-        $events = CalendarEvent::orderBy('event_date', 'asc')
+        $rawEvents = CalendarEvent::where('category', '!=', 'Konseling Individu')
+            ->orderBy('event_date', 'asc')
             ->orderBy('start_time', 'asc')
             ->get();
 
+        $counselings = CounselingSession::with('student')
+            ->whereIn('status', ['disetujui', 'dijadwalkan ulang'])
+            ->orderBy('preferred_date', 'asc')
+            ->get();
+
+        $formattedEvents = collect();
+
+        foreach ($rawEvents as $e) {
+            $dateStr = is_string($e->event_date) ? $e->event_date : $e->event_date->format('Y-m-d');
+            $formattedEvents->push((object)[
+                'id' => 'event-' . $e->id,
+                'source_id' => $e->id,
+                'source_type' => 'event',
+                'title' => $e->title,
+                'event_date' => $e->event_date,
+                'date' => $dateStr,
+                'start_time' => $e->start_time,
+                'end_time' => $e->end_time,
+                'location' => $e->location,
+                'category' => $e->category,
+                'description' => $e->description,
+            ]);
+        }
+
+        foreach ($counselings as $c) {
+            $dateStr = $c->preferred_date ? $c->preferred_date->format('Y-m-d') : null;
+            $studentName = $c->student ? $c->student->nama : 'Siswa';
+            $statusLabel = $c->status === 'dijadwalkan ulang' ? ' (Jadwal Ulang)' : '';
+            $desc = "Siswa: {$studentName}" . ($c->student ? " (Kelas {$c->student->kelas})" : "") . "\nTopik: {$c->topic}";
+            if ($c->rescheduled_reason) {
+                $desc .= "\nCatatan Jadwal Ulang: {$c->rescheduled_reason}";
+            }
+
+            $formattedEvents->push((object)[
+                'id' => 'counseling-' . $c->id,
+                'source_id' => $c->id,
+                'source_type' => 'counseling',
+                'title' => "Konseling: {$studentName}{$statusLabel}",
+                'event_date' => $c->preferred_date,
+                'date' => $dateStr,
+                'start_time' => $c->preferred_time,
+                'end_time' => null,
+                'location' => $c->room_or_media ?? 'Ruang BK',
+                'category' => 'Konseling',
+                'description' => $desc,
+            ]);
+        }
+
+        $events = $formattedEvents->sortBy('date')->values();
+
         $todayDate = date('Y-m-d');
         $todayEvents = $events->filter(function ($e) use ($todayDate) {
-            return $e->event_date->format('Y-m-d') === $todayDate;
+            return $e->date === $todayDate;
         });
 
         $upcomingEvents = $events->filter(function ($e) use ($todayDate) {
-            return $e->event_date->format('Y-m-d') >= $todayDate;
+            return $e->date >= $todayDate;
         })->take(5);
 
         return view('guru.calendar.index', compact('events', 'todayEvents', 'upcomingEvents'));

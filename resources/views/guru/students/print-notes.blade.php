@@ -83,7 +83,7 @@
             <span class="text-xs text-white/80 font-medium">Pilih Catatan:</span>
             <select onchange="window.location.href = this.value" class="bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
                 <option value="{{ route('guru.students.notes.print', $student->id) }}" class="text-[#1E1B4B]" {{ empty(request('note_id')) ? 'selected' : '' }}>
-                    📋 Cetak Semua Catatan ({{ $student->counselingNotes->count() }} Sesi)
+                    Cetak Semua Catatan ({{ $student->counselingNotes->count() }} Sesi)
                 </option>
                 @foreach($student->counselingNotes as $idx => $n)
                     <option value="{{ route('guru.students.notes.print', ['id' => $student->id, 'note_id' => $n->id]) }}" class="text-[#1E1B4B]" {{ request('note_id') == $n->id ? 'selected' : '' }}>

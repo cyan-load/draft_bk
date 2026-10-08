@@ -9,6 +9,7 @@ use App\Models\QuestionOption;
 use App\Models\Student;
 use App\Models\StudentAnswer;
 use App\Models\ReportSetting;
+use App\Models\AppNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -202,27 +203,33 @@ class QuestionnaireController extends Controller
         return back()->with('success', 'Status kuisioner berhasil diubah menjadi: ' . ($statusLabels[$status] ?? $status));
     }
 
-    // Menghapus kuisioner
+    // Menghapus kuisioner beserta seluruh jawaban, hasil, dan riwayat siswa
     public function destroy($id)
     {
         $questionnaire = Questionnaire::findOrFail($id);
         
         DB::beginTransaction();
         try {
-            // Hapus jawaban siswa terkait
+            // 1. Hapus seluruh riwayat dan jawaban siswa terkait kuisioner ini
             StudentAnswer::where('questionnaire_id', $id)->delete();
             
-            // Hapus opsi jawaban & pertanyaan terkait
+            // 2. Hapus butir opsi jawaban & pertanyaan terkait
             $questions = Question::where('questionnaire_id', $id)->get();
             foreach ($questions as $q) {
                 QuestionOption::where('question_id', $q->id)->delete();
                 $q->delete();
             }
+
+            // 3. Hapus notifikasi terkait jika ada
+            AppNotification::where('url', 'like', "%/questionnaires/{$id}%")
+                ->orWhere('url', 'like', "%/kuisioner/{$id}%")
+                ->delete();
             
+            // 4. Hapus data utama kuisioner
             $questionnaire->delete();
             DB::commit();
 
-            return redirect()->route('guru.questionnaires.index')->with('success', 'Kuisioner berhasil dihapus.');
+            return redirect()->route('guru.questionnaires.index')->with('success', 'Kuisioner beserta seluruh jawaban, hasil, dan riwayat siswa berhasil dihapus.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menghapus kuisioner: ' . $e->getMessage());

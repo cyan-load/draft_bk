@@ -33,12 +33,14 @@ class StudentCalendarController extends Controller
         $calendarItems = [];
 
         foreach ($myCounselings as $c) {
+            $statusText = $c->status === 'dijadwalkan ulang' ? 'Jadwal Ulang' : 'Terjadwal';
             $calendarItems[] = [
                 'id' => 'counseling-' . $c->id,
-                'title' => 'Sesi Konseling: ' . $c->category . ' (' . ucfirst($c->status) . ')',
+                'title' => 'Sesi Konseling: ' . $c->category . ' (' . $statusText . ')',
                 'date' => $c->preferred_date ? $c->preferred_date->format('Y-m-d') : null,
                 'time' => $c->preferred_time ?? '-',
                 'location' => $c->room_or_media ?? 'Ruang BK',
+                'category' => 'Konseling',
                 'type' => 'counseling',
                 'status' => $c->status,
                 'description' => $c->topic,
@@ -53,6 +55,7 @@ class StudentCalendarController extends Controller
                 'date' => is_string($ev->event_date) ? $ev->event_date : $ev->event_date->format('Y-m-d'),
                 'time' => $ev->start_time . ($ev->end_time ? ' - ' . $ev->end_time : ''),
                 'location' => $ev->location ?? 'Sekolah',
+                'category' => $ev->category ?? 'Agenda Umum',
                 'type' => 'event',
                 'status' => 'kegiatan',
                 'description' => $ev->description,

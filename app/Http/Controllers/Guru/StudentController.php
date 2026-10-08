@@ -47,6 +47,14 @@ class StudentController extends Controller
             'alamat' => 'nullable|string',
             'nomor_telepon' => 'nullable|string|max:20',
             'nomor_telepon_orang_tua' => 'nullable|string|max:20',
+            'nama_ayah' => 'nullable|string|max:255',
+            'nama_ibu' => 'nullable|string|max:255',
+            'hobi' => 'nullable|string|max:255',
+            'cita_cita' => 'nullable|string|max:255',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'agama' => 'nullable|string|max:50',
         ]);
 
         $email = $request->filled('email') ? trim($request->email) : null;
@@ -69,6 +77,14 @@ class StudentController extends Controller
             'alamat' => $request->alamat ?? '-',
             'nomor_telepon' => $request->nomor_telepon ?? '-',
             'nomor_telepon_orang_tua' => $request->nomor_telepon_orang_tua,
+            'nama_ayah' => $request->nama_ayah,
+            'nama_ibu' => $request->nama_ibu,
+            'hobi' => $request->hobi,
+            'cita_cita' => $request->cita_cita,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'agama' => $request->agama,
             'status' => 'aktif',
         ];
 
@@ -120,6 +136,14 @@ class StudentController extends Controller
             'alamat' => 'nullable|string',
             'nomor_telepon' => 'nullable|string|max:20',
             'nomor_telepon_orang_tua' => 'nullable|string|max:20',
+            'nama_ayah' => 'nullable|string|max:255',
+            'nama_ibu' => 'nullable|string|max:255',
+            'hobi' => 'nullable|string|max:255',
+            'cita_cita' => 'nullable|string|max:255',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'agama' => 'nullable|string|max:50',
         ]);
 
         $email = $request->filled('email') ? trim($request->email) : null;
@@ -133,6 +157,14 @@ class StudentController extends Controller
             'alamat' => $request->alamat ?? '-',
             'nomor_telepon' => $request->nomor_telepon ?? '-',
             'nomor_telepon_orang_tua' => $request->nomor_telepon_orang_tua,
+            'nama_ayah' => $request->nama_ayah,
+            'nama_ibu' => $request->nama_ibu,
+            'hobi' => $request->hobi,
+            'cita_cita' => $request->cita_cita,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'agama' => $request->agama,
         ];
 
         if ($request->hasFile('foto')) {

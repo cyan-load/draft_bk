@@ -15,6 +15,13 @@
 
         monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
 
+        formatLocalDate(d = new Date()) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        },
+
         get monthTitle() {
             return this.monthNames[this.currentMonth] + ' ' + this.currentYear;
         },
@@ -41,7 +48,7 @@
             const now = new Date();
             this.currentYear = now.getFullYear();
             this.currentMonth = now.getMonth();
-            this.selectedDateStr = now.toISOString().split('T')[0];
+            this.selectedDateStr = this.formatLocalDate(now);
         },
 
         get calendarDays() {
@@ -49,6 +56,7 @@
             const startOffset = (firstDayIndex + 6) % 7;
             const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
             const daysInPrevMonth = new Date(this.currentYear, this.currentMonth, 0).getDate();
+            const todayStr = this.formatLocalDate(new Date());
 
             const days = [];
 
@@ -61,7 +69,7 @@
                     dayNum: dayNum,
                     dateStr: dateStr,
                     isCurrentMonth: false,
-                    isToday: dateStr === new Date().toISOString().split('T')[0],
+                    isToday: dateStr === todayStr,
                     items: this.getItemsForDate(dateStr)
                 });
             }
@@ -72,7 +80,7 @@
                     dayNum: i,
                     dateStr: dateStr,
                     isCurrentMonth: true,
-                    isToday: dateStr === new Date().toISOString().split('T')[0],
+                    isToday: dateStr === todayStr,
                     items: this.getItemsForDate(dateStr)
                 });
             }
@@ -87,7 +95,7 @@
                     dayNum: i,
                     dateStr: dateStr,
                     isCurrentMonth: false,
-                    isToday: false,
+                    isToday: dateStr === todayStr,
                     items: this.getItemsForDate(dateStr)
                 });
             }
@@ -204,7 +212,7 @@
                                 <div @click.stop="showDetail(item)"
                                      :class="item.type === 'counseling' ? 'bg-[#9FA1FF]/25 text-[#1E1B4B] border-l-2 border-[#8E90FF]' : 'bg-[#E0E7FF] text-[#312E81] border-l-2 border-[#4338CA]'"
                                      class="text-[9px] px-1.5 py-0.5 rounded truncate font-bold leading-tight hover:opacity-80 transition-opacity">
-                                    <span x-text="item.type === 'counseling' ? '🤝 ' + item.time : '📅 ' + item.title"></span>
+                                    <span x-text="item.type === 'counseling' ? (item.time || 'Konseling') : item.title"></span>
                                 </div>
                             </template>
                             <template x-if="day.items.length > 2">
@@ -263,7 +271,7 @@
                         <div class="flex items-center justify-between gap-2">
                             <span :class="item.type === 'counseling' ? 'bg-[#9FA1FF] text-[#1E1B4B]' : 'bg-[#E0E7FF] text-[#312E81]'"
                                   class="text-[10px] font-extrabold px-2 py-0.5 rounded-lg"
-                                  x-text="item.type === 'counseling' ? '🤝 Konseling ' + (item.status === 'dijadwalkan ulang' ? '(Jadwal Ulang)' : '') : '📅 Agenda Sekolah'"></span>
+                                  x-text="item.type === 'counseling' ? ('Konseling ' + (item.status === 'dijadwalkan ulang' ? '(Jadwal Ulang)' : '')) : (item.category || 'Agenda Sekolah')"></span>
                             
                             <span class="text-xs font-bold text-[#4338CA]" x-text="item.time"></span>
                         </div>
@@ -298,7 +306,7 @@
             <div class="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
                 <span :class="selectedItem?.type === 'counseling' ? 'bg-[#9FA1FF] text-[#1E1B4B]' : 'bg-[#E0E7FF] text-[#312E81]'"
                       class="text-xs font-extrabold px-3 py-1 rounded-xl"
-                      x-text="selectedItem?.type === 'counseling' ? '🤝 Konseling Siswa' : '📅 Agenda Sekolah'"></span>
+                      x-text="selectedItem?.type === 'counseling' ? 'Konseling Siswa' : (selectedItem?.category || 'Agenda Sekolah')"></span>
                 <button type="button" @click="openDetailModal = false" class="text-[#64748B] hover:text-[#1E1B4B] text-xl font-bold">&times;</button>
             </div>
 

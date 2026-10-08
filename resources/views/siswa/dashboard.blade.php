@@ -7,7 +7,7 @@
 <!-- GREETING SECTION -->
 <div class="mb-8">
     <h2 class="text-2xl md:text-3xl font-extrabold text-[#1E1B4B] tracking-tight">
-        Selamat datang, {{ $student->nama ?? Auth::user()->username ?? 'Siswa' }} 👋
+        Selamat datang, {{ $student->nama ?? Auth::user()->username ?? 'Siswa' }}
     </h2>
     <div class="flex items-center gap-2 text-[#64748B] mt-1 text-sm font-semibold">
         <svg class="w-4 h-4 text-[#1E1B4B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6"></path></svg>
