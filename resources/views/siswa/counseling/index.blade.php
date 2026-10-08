@@ -14,6 +14,42 @@
         formDate: '{{ date('Y-m-d', strtotime('+1 day')) }}',
         formTime: 'Istirahat 1 (09:45 - 10:15 WIB)',
 
+        conflictWarning: '',
+        isCheckingConflict: false,
+
+        async checkStudentConflict() {
+            if (!this.formDate || !this.formTime) {
+                this.conflictWarning = '';
+                return;
+            }
+            this.isCheckingConflict = true;
+            try {
+                const params = new URLSearchParams({
+                    date: this.formDate,
+                    start_time: this.formTime,
+                });
+                const res = await fetch(`/api/schedule/check-conflict?${params.toString()}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                if (data.has_conflict) {
+                    this.conflictWarning = data.message;
+                } else {
+                    this.conflictWarning = '';
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                this.isCheckingConflict = false;
+            }
+        },
+
+        openCreate() {
+            this.conflictWarning = '';
+            this.openCreateModal = true;
+            this.$nextTick(() => { this.checkStudentConflict(); });
+        },
+
         confirmCancel(id) {
             this.selectedCancelId = id;
             this.openCancelModal = true;
@@ -27,7 +63,7 @@
             <p class="text-xs md:text-sm text-[#64748B] mt-1 font-medium">Ajukan permohonan bimbingan dan pantau jadwal pertemuan konseling bersama Guru BK.</p>
         </div>
         <div class="flex items-center gap-2">
-            <button type="button" @click="openCreateModal = true" class="w-full sm:w-auto justify-center px-5 py-2.5 bg-[#9FA1FF] hover:bg-[#8E90FF] active:scale-95 text-[#1E1B4B] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer">
+            <button type="button" @click="openCreate()" class="w-full sm:w-auto justify-center px-5 py-2.5 bg-[#9FA1FF] hover:bg-[#8E90FF] active:scale-95 text-[#1E1B4B] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Ajukan Konseling Baru</span>
             </button>
@@ -38,7 +74,7 @@
     @if(session('success'))
         <div class="bg-[#D9F9DF] border border-[#BBF7D0] text-[#14532D] text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
             <div class="flex items-center gap-2">
-                <span>✅</span>
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 <span>{{ session('success') }}</span>
             </div>
             <button type="button" onclick="this.parentElement.remove()" class="text-[#14532D] font-bold">&times;</button>
@@ -48,10 +84,27 @@
     @if(session('error'))
         <div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
             <div class="flex items-center gap-2">
-                <span>⚠️</span>
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 <span>{{ session('error') }}</span>
             </div>
             <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 font-bold">&times;</button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
+            <div class="flex flex-col gap-1">
+                <span class="font-bold flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Terjadi kesalahan input:
+                </span>
+                <ul class="list-disc list-inside space-y-0.5">
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 font-bold text-lg">&times;</button>
         </div>
     @endif
 
@@ -198,7 +251,8 @@
                 @if($c->status === 'dijadwalkan ulang' && $c->rescheduled_reason)
                     <div class="p-3.5 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-900 space-y-1">
                         <span class="font-bold flex items-center gap-1.5">
-                            <span>ℹ️</span> Catatan Perubahan Jadwal dari Guru BK:
+                            <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Catatan Perubahan Jadwal dari Guru BK:
                         </span>
                         <p class="text-indigo-800 font-medium">{{ $c->rescheduled_reason }}</p>
                     </div>
@@ -207,7 +261,8 @@
                 @if($c->status === 'ditolak' && $c->rejection_reason)
                     <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-900 space-y-1">
                         <span class="font-bold flex items-center gap-1.5">
-                            <span>❌</span> Alasan Penolakan dari Guru BK:
+                            <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Alasan Penolakan dari Guru BK:
                         </span>
                         <p class="text-rose-800 font-medium">{{ $c->rejection_reason }}</p>
                     </div>
@@ -274,12 +329,12 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="text-xs font-bold text-[#1E1B4B] block mb-1.5">Tanggal yang Diinginkan <span class="text-rose-500">*</span></label>
-                        <input type="date" name="preferred_date" x-model="formDate" min="{{ date('Y-m-d') }}" class="w-full px-3.5 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-xs font-semibold text-[#1E1B4B] outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF]" required>
+                        <input type="date" name="preferred_date" x-model="formDate" @change="checkStudentConflict()" min="{{ date('Y-m-d') }}" class="w-full px-3.5 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-xs font-semibold text-[#1E1B4B] outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF]" required>
                     </div>
 
                     <div>
                         <label class="text-xs font-bold text-[#1E1B4B] block mb-1.5">Waktu / Jam yang Diinginkan <span class="text-rose-500">*</span></label>
-                        <select name="preferred_time" x-model="formTime" class="w-full px-3.5 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-xs font-semibold text-[#1E1B4B] outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF]" required>
+                        <select name="preferred_time" x-model="formTime" @change="checkStudentConflict()" class="w-full px-3.5 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-xs font-semibold text-[#1E1B4B] outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF]" required>
                             <option value="Istirahat 1 (09:45 - 10:15 WIB)">Istirahat 1 (09:45 - 10:15 WIB)</option>
                             <option value="Istirahat 2 (12:00 - 12:45 WIB)">Istirahat 2 (12:00 - 12:45 WIB)</option>
                             <option value="Jam Pelajaran BK (Sesuai Jadwal Kelas)">Jam Pelajaran BK (Sesuai Jadwal Kelas)</option>
@@ -293,6 +348,16 @@
                     <label class="text-xs font-bold text-[#1E1B4B] block mb-1.5">Topik / Gambaran Masalah yang Ingin Dikonsultasikan <span class="text-rose-500">*</span></label>
                     <textarea name="topic" x-model="formTopic" rows="4" placeholder="Ceritakan secara singkat hal yang ingin Anda konsultasikan dengan Guru BK..." class="w-full px-3.5 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#1E1B4B] outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF]" required></textarea>
                     <span class="text-[10px] text-[#64748B] mt-1 block">Catatan ini terjaga kerahasiaannya dan hanya dapat dilihat oleh Guru BK sekolah.</span>
+                </div>
+
+                <!-- Banner Peringatan Bentrok Real-Time -->
+                <div x-show="conflictWarning" x-cloak class="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-xs text-amber-900 flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div class="space-y-1">
+                        <span class="font-bold text-amber-950 block text-xs">Peringatan Jadwal Bentrok!</span>
+                        <p class="font-medium text-amber-900" x-text="conflictWarning"></p>
+                        <span class="text-[11px] text-amber-800 block">Guru BK sudah memiliki agenda/konseling lain di jam tersebut. Anda disarankan memilih waktu atau hari lain agar jadwal bimbingan dapat segera disetujui.</span>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#E2E8F0]">
@@ -311,7 +376,7 @@
     <div x-show="openCancelModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-[#1E1B4B]/40 backdrop-blur-xs flex items-center justify-center p-4">
         <div @click.away="openCancelModal = false" class="bg-white rounded-3xl max-w-sm w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 space-y-4 shadow-xl border border-[#E2E8F0] text-center">
             <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
-                ⚠️
+                <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>
             <div>
                 <h4 class="text-base font-extrabold text-[#1E1B4B]">Batalkan Pengajuan?</h4>

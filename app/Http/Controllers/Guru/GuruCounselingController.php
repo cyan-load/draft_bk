@@ -73,22 +73,14 @@ class GuruCounselingController extends Controller
         $targetDate = $request->preferred_date;
         $targetTime = $request->preferred_time;
 
-        // 1. Cek bentrok di tabel CalendarEvent (hanya agenda umum, bukan phantom konseling)
-        $conflictEvent = CalendarEvent::whereDate('event_date', $targetDate)
-            ->where('start_time', $targetTime)
-            ->where('category', '!=', 'Konseling Individu')
-            ->first();
+        // Cek bentrok komprehensif menggunakan ScheduleConflictService
+        $conflict = \App\Services\ScheduleConflictService::checkConflict(
+            $targetDate,
+            $targetTime
+        );
 
-        // 2. Cek bentrok di tabel CounselingSession yang sudah aktif
-        $conflictCounseling = CounselingSession::with('student')
-            ->whereDate('preferred_date', $targetDate)
-            ->where('preferred_time', $targetTime)
-            ->whereIn('status', ['disetujui', 'dijadwalkan ulang'])
-            ->first();
-
-        if ($conflictEvent || $conflictCounseling) {
-            $conflictName = $conflictEvent ? $conflictEvent->title : ('Konseling dengan ' . ($conflictCounseling->student->nama ?? 'Siswa lain'));
-            return back()->withInput()->with('error', "Jadwal bentrok! Sudah ada agenda/konseling lain: \"{$conflictName}\" pada tanggal " . date('d M Y', strtotime($targetDate)) . " pukul {$targetTime}. Silakan pilih waktu atau hari yang berbeda.");
+        if ($conflict) {
+            return back()->withInput()->with('error', "Peringatan Jadwal Bentrok! {$conflict['message']} Silakan pilih waktu atau hari yang berbeda.");
         }
 
         $student = Student::with('user')->findOrFail($request->student_id);
@@ -142,22 +134,16 @@ class GuruCounselingController extends Controller
             $targetDate = $request->preferred_date ?? ($counseling->preferred_date ? $counseling->preferred_date->format('Y-m-d') : date('Y-m-d'));
             $targetTime = $request->preferred_time ?? $counseling->preferred_time;
 
-            // Cek bentrok jadwal lain
-            $conflictEvent = CalendarEvent::whereDate('event_date', $targetDate)
-                ->where('start_time', $targetTime)
-                ->where('category', '!=', 'Konseling Individu')
-                ->first();
+            // Cek bentrok komprehensif menggunakan ScheduleConflictService
+            $conflict = \App\Services\ScheduleConflictService::checkConflict(
+                $targetDate,
+                $targetTime,
+                null,
+                ['counseling_id' => $counseling->id]
+            );
 
-            $conflictCounseling = CounselingSession::with('student')
-                ->where('id', '!=', $counseling->id)
-                ->whereDate('preferred_date', $targetDate)
-                ->where('preferred_time', $targetTime)
-                ->whereIn('status', ['disetujui', 'dijadwalkan ulang'])
-                ->first();
-
-            if ($conflictEvent || $conflictCounseling) {
-                $conflictName = $conflictEvent ? $conflictEvent->title : ('Konseling dengan ' . ($conflictCounseling->student->nama ?? 'Siswa lain'));
-                return back()->withInput()->with('error', "Persetujuan gagal karena jadwal bentrok! Sudah ada kegiatan: \"{$conflictName}\" pada tanggal " . date('d M Y', strtotime($targetDate)) . " pukul {$targetTime}. Silakan sesuaikan waktu persetujuan.");
+            if ($conflict) {
+                return back()->withInput()->with('error', "Persetujuan gagal karena jadwal bentrok! {$conflict['message']} Silakan sesuaikan waktu persetujuan.");
             }
 
             $counseling->update([
@@ -186,22 +172,16 @@ class GuruCounselingController extends Controller
                 return back()->with('error', 'Tanggal dan jam baru harus diisi untuk menjadwalkan ulang.');
             }
 
-            // Cek bentrok jadwal lain
-            $conflictEvent = CalendarEvent::whereDate('event_date', $targetDate)
-                ->where('start_time', $targetTime)
-                ->where('category', '!=', 'Konseling Individu')
-                ->first();
+            // Cek bentrok komprehensif menggunakan ScheduleConflictService
+            $conflict = \App\Services\ScheduleConflictService::checkConflict(
+                $targetDate,
+                $targetTime,
+                null,
+                ['counseling_id' => $counseling->id]
+            );
 
-            $conflictCounseling = CounselingSession::with('student')
-                ->where('id', '!=', $counseling->id)
-                ->whereDate('preferred_date', $targetDate)
-                ->where('preferred_time', $targetTime)
-                ->whereIn('status', ['disetujui', 'dijadwalkan ulang'])
-                ->first();
-
-            if ($conflictEvent || $conflictCounseling) {
-                $conflictName = $conflictEvent ? $conflictEvent->title : ('Konseling dengan ' . ($conflictCounseling->student->nama ?? 'Siswa lain'));
-                return back()->withInput()->with('error', "Jadwal bentrok! Sudah ada kegiatan: \"{$conflictName}\" pada tanggal " . date('d M Y', strtotime($targetDate)) . " pukul {$targetTime}. Silakan pilih waktu yang berbeda.");
+            if ($conflict) {
+                return back()->withInput()->with('error', "Penjadwalan ulang gagal karena jadwal bentrok! {$conflict['message']} Silakan pilih waktu yang berbeda.");
             }
 
             $counseling->update([

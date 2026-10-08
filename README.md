@@ -3,7 +3,7 @@
 
 ## Ringkasan Proyek
 
-**SIM-BK** adalah aplikasi berbasis web yang dikembangkan untuk mendigitalkan dan meningkatkan efisiensi tata kelola layanan Bimbingan dan Konseling (BK) di institusi sekolah. Sistem ini dirancang untuk mempermudah Guru BK dalam mengelola agenda bimbingan, memonitor perkembangan peserta didik, melakukan asesmen diagnostik minat/bakat/permasalahan, serta menghasilkan rekam jejak bimbingan resmi yang terstandardisasi. Di sisi lain, siswa memperoleh ruang aman dan terstruktur untuk mengajukan konsultasi serta memantau perkembangan asesmen mereka.
+**SIM-BK** adalah aplikasi berbasis web yang dikembangkan untuk mendigitalkan dan meningkatkan efisiensi tata kelola layanan Bimbingan dan Konseling (BK) di institusi sekolah. Sistem ini dirancang untuk mempermudah Guru BK dalam mengelola agenda bimbingan, memonitor perkembangan peserta didik, melakukan asesmen pemetaan minat, bakat, dan kebutuhan peserta didik, serta menghasilkan rekam jejak bimbingan resmi yang terstandardisasi. Di sisi lain, siswa memperoleh ruang aman dan terstruktur untuk mengajukan konsultasi serta memantau perkembangan asesmen mereka.
 
 ---
 
@@ -25,6 +25,7 @@ Sistem ini dibangun dengan pemisahan hak akses berbasis peran (*Role-Based Acces
   - Fitur cetak resmi dokumen **Rekam Jejak Konseling Siswa** berstandar dinas pendidikan (dilengkapi kop surat dan tanda tangan yang dapat disesuaikan).
 - **Layanan Konseling Terstruktur**:
   - Konfirmasi, penjadwalan ulang (*reschedule*), dan penutupan sesi bimbingan siswa.
+  - **Deteksi Otomatis Jadwal Bentrok**: Peringatan otomatis interaktif (*real-time warning*) saat inisiasi, persetujuan, atau penjadwalan ulang jika waktu konseling bertabrakan dengan agenda lain.
   - Form pencatatan hasil bimbingan: permasalahan, pendekatan/teknik BK yang digunakan, kesimpulan, dan rekomendasi tindak lanjut.
 - **Asesmen & Kuisioner Dinamis**:
   - Pembuatan butir instrumen mandiri (Pilihan Tunggal, Pilihan Ganda dengan bobot skor, dan Isian/Uraian).
@@ -34,11 +35,13 @@ Sistem ini dibangun dengan pemisahan hak akses berbasis peran (*Role-Based Acces
   - Cetak Rekapitulasi Hasil Asesmen Kelas dan Lembar Jawaban Individual berformat PDF resmi.
 - **Kalender & Agenda Kerja BK**:
   - Kalender interaktif bulanan untuk mencatat kegiatan bimbingan klasikal, konferensi kasus, kunjungan rumah (*home visit*), dan janji temu siswa.
+  - **Pencegahan Bentrok Jadwal Kalender**: Validasi otomatis dan peringatan interaktif saat penambahan maupun pembaruan kegiatan di kalender bila waktu pelaksanaan bentrok dengan sesi konseling atau kegiatan lain.
 
 ### 3. Modul Siswa
 - **Dashboard Siswa**: Informasi agenda bimbingan yang akan datang dan status instrumen asesmen yang wajib diisi.
 - **Pengajuan Konseling Mandiri**:
   - Siswa dapat mengajukan sesi konsultasi dengan memilih topik masalah, tanggal/waktu yang diinginkan, serta jenis bidang bimbingan.
+  - **Peringatan Otomatis Jadwal Bentrok**: Peringatan dini di formulir pengajuan apabila slot waktu yang dipilih sudah terisi agenda Guru BK.
   - Mengetahui status konfirmasi dari Guru BK secara transparan.
 - **Pengisian Asesmen & Kuisioner**:
   - Antarmuka pengisian angket responsif dengan indikator butir wajib.

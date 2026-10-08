@@ -15,7 +15,7 @@ return new class extends Migration
             
             $table->date('tanggal')->nullable();
             $table->string('kategori')->default('Pribadi'); // Pribadi, Belajar, Karir, Sosial, Kedisiplinan
-            $table->text('keluhan_masalah'); // Uraian masalah / gejala
+            $table->text('keluhan_masalah'); // Uraian masalah / kendala peserta didik
             $table->text('layanan_diberikan'); // Tindakan konseling / pendekatan
             $table->text('tindak_lanjut_evaluasi')->nullable(); // Rencana aksi tindak lanjut
             $table->enum('status', ['Dalam Pemantauan', 'Selesai / Teratasi', 'Rujukan / Alih Tangan'])->default('Dalam Pemantauan');

@@ -144,7 +144,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-xs font-bold text-[#475569] uppercase mb-2">Cita-Cita / Orientasi Masa Depan</label>
-                        <input type="text" name="cita_cita" value="{{ old('cita_cita') }}" placeholder="Contoh: Teknik Informatika, Dokter, Desainer Grafis" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#9FA1FF] focus:bg-white text-[#1E293B]">
+                        <input type="text" name="cita_cita" value="{{ old('cita_cita') }}" placeholder="Contoh: Teknik Informatika, Arsitek, Desainer Grafis" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#9FA1FF] focus:bg-white text-[#1E293B]">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-xs font-bold text-[#475569] uppercase mb-2">Alamat Lengkap</label>

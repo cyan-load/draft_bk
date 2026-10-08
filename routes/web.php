@@ -58,6 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read_all');
 
+    // CEK BENTROK JADWAL OTOMATIS (REAL-TIME)
+    Route::get('/api/schedule/check-conflict', [GuruCalendarController::class, 'checkConflictApi'])->name('schedule.check_conflict');
+
     // PORTAL SISWA
     Route::middleware('role:siswa')->group(function () {
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');

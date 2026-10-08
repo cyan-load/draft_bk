@@ -91,6 +91,18 @@ class GuruCalendarController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        if ($request->filled('start_time')) {
+            $conflict = \App\Services\ScheduleConflictService::checkConflict(
+                $request->event_date,
+                $request->start_time,
+                $request->end_time
+            );
+
+            if ($conflict) {
+                return back()->withInput()->with('error', "Peringatan Jadwal Bentrok! {$conflict['message']} Silakan pilih jam atau tanggal yang berbeda.");
+            }
+        }
+
         CalendarEvent::create([
             'user_id' => Auth::id(),
             'title' => $request->title,
@@ -119,6 +131,19 @@ class GuruCalendarController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        if ($request->filled('start_time')) {
+            $conflict = \App\Services\ScheduleConflictService::checkConflict(
+                $request->event_date,
+                $request->start_time,
+                $request->end_time,
+                ['event_id' => $event->id]
+            );
+
+            if ($conflict) {
+                return back()->withInput()->with('error', "Peringatan Jadwal Bentrok! {$conflict['message']} Silakan pilih jam atau tanggal yang berbeda.");
+            }
+        }
+
         $event->update([
             'title' => $request->title,
             'event_date' => $request->event_date,
@@ -130,6 +155,43 @@ class GuruCalendarController extends Controller
         ]);
 
         return redirect()->route('guru.calendar.index')->with('success', 'Agenda kegiatan berhasil diperbarui!');
+    }
+
+    public function checkConflictApi(Request $request)
+    {
+        $date = $request->get('date');
+        $startTime = $request->get('start_time');
+        $endTime = $request->get('end_time');
+        $excludeEventId = $request->get('exclude_event_id');
+        $excludeCounselingId = $request->get('exclude_counseling_id');
+
+        if (!$date || !$startTime) {
+            return response()->json(['has_conflict' => false]);
+        }
+
+        $conflict = \App\Services\ScheduleConflictService::checkConflict(
+            $date,
+            $startTime,
+            $endTime,
+            [
+                'event_id' => $excludeEventId,
+                'counseling_id' => $excludeCounselingId,
+            ]
+        );
+
+        if ($conflict) {
+            return response()->json([
+                'has_conflict' => true,
+                'conflict' => $conflict,
+                'message' => $conflict['message'],
+            ]);
+        }
+
+        return response()->json([
+            'has_conflict' => false,
+            'conflict' => null,
+            'message' => null,
+        ]);
     }
 
     public function destroy($id)

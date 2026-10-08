@@ -115,7 +115,7 @@ class DatabaseSeeder extends Seeder
                 'nama_ayah' => 'Hendro Susilo, M.Si.',
                 'nama_ibu' => 'Dewi Lestari, S.Farm.',
                 'hobi' => 'Jurnalistik, Menulis Esai & Desain Komunikasi Visual',
-                'cita_cita' => 'Psikolog Klinis / Konselor Pendidikan',
+                'cita_cita' => 'Konselor Pendidikan / Dosen',
             ]
         );
 
@@ -208,7 +208,7 @@ class DatabaseSeeder extends Seeder
                 'nama_ayah' => 'Ir. Gunawan Wibisono',
                 'nama_ibu' => 'Ratna Sari, S.Pd.',
                 'hobi' => 'Olimpiade Biologi & Tari Tradisional',
-                'cita_cita' => 'Dokter Spesialis Anak',
+                'cita_cita' => 'Peneliti Hayati & Dosen Sains',
             ]
         );
 
@@ -306,14 +306,14 @@ class DatabaseSeeder extends Seeder
         );
 
         // =========================================================================
-        // 3. KUISIONER & ASESMEN DIAGNOSTIK BK
+        // 3. KUISIONER & ASESMEN PEMETAAN KEBUTUHAN BK
         // =========================================================================
 
         // INSTRUMEN 1: AKPD / IKMS Terpadu (Status: published)
         $q1 = Questionnaire::create([
             'judul'           => 'Angket Kebutuhan Peserta Didik (AKPD) / IKMS Terpadu',
             'jenis_instrumen' => 'IKMS',
-            'deskripsi'       => 'Asesmen diagnostik komprehensif berbasis 4 bidang layanan bimbingan konseling (Pribadi, Sosial, Belajar, dan Karir) untuk memetakan program layanan tahun ajaran berjalan.',
+            'deskripsi'       => 'Asesmen pemetaan komprehensif berbasis 4 bidang layanan bimbingan konseling (Pribadi, Sosial, Belajar, dan Karir) untuk memetakan program layanan tahun ajaran berjalan.',
             'target_kelas'    => 'Semua Kelas',
             'status'          => 'published',
             'is_active'       => 1,
@@ -373,7 +373,7 @@ class DatabaseSeeder extends Seeder
                 'aspek'  => 'Karir',
                 'options' => [
                     ['teks' => 'Sains, Teknologi, Rekayasa & Informatika (STEM)', 'skor' => 1],
-                    ['teks' => 'Kedokteran, Keperawatan & Ilmu Kesehatan', 'skor' => 1],
+                    ['teks' => 'Sains Hayati, Pertanian & Lingkungan Hidup', 'skor' => 1],
                     ['teks' => 'Ilmu Sosial, Hukum, Komunikasi & Psikologi', 'skor' => 1],
                     ['teks' => 'Ekonomi, Bisnis, Akuntansi & Manajemen', 'skor' => 1],
                     ['teks' => 'Seni, Desain Grafis & Industri Kreatif', 'skor' => 1],
@@ -437,7 +437,7 @@ class DatabaseSeeder extends Seeder
             [
                 'student' => $student5,
                 'choices' => [0, 0, 1, 0, 1],
-                'essay'   => 'Ingin mengetahui persyaratan dan persiapan portofolio untuk masuk Fakultas Kedokteran jalur prestasi.',
+                'essay'   => 'Ingin mengetahui persyaratan dan persiapan portofolio untuk masuk Fakultas Sains Hayati jalur prestasi.',
                 'date'    => now()->subDays(3),
             ],
             [
@@ -780,7 +780,7 @@ class DatabaseSeeder extends Seeder
                 'student_id'         => $student5->id,
                 'guru_id'            => $guruUser->id,
                 'category'           => 'Karir',
-                'topic'              => 'Eksplorasi minat karir kedokteran dan penyusunan peta jalan (roadmap) portofolio prestasi sains sejak kelas X.',
+                'topic'              => 'Eksplorasi minat karir sains murni dan penyusunan peta jalan (roadmap) portofolio prestasi sains sejak kelas X.',
                 'preferred_date'     => date('Y-m-d', strtotime('+2 days')),
                 'preferred_time'     => 'Jam Pelajaran BK',
                 'room_or_media'      => 'Ruang Konseling BK 2',
@@ -935,8 +935,8 @@ class DatabaseSeeder extends Seeder
                 'guru_id'                => $guruUser->id,
                 'tanggal'                => date('Y-m-d', strtotime('-5 days')),
                 'kategori'               => 'Karir',
-                'keluhan_masalah'        => 'Kebimbangan menentukan pilihan program studi prioritas antara Teknik Informatika ITB dan Ilmu Komputer UI, serta belum selarasnya aspirasi siswa dengan arahan keluarga (Kedokteran).',
-                'layanan_diberikan'      => 'Konseling individual dengan teknik restrukturisasi kognitif dan eksplorasi data prospek karir digital. Peninjauan rekam jejak nilai rapor matematika dan informatika (rata-rata 92.5).',
+                'keluhan_masalah'        => 'Kebimbangan menentukan pilihan program studi prioritas antara Teknik Informatika ITB dan Ilmu Komputer UI, serta belum selarasnya aspirasi siswa dengan arahan keluarga (jurusan umum).',
+                'layanan_diberikan'      => 'Konseling individual dengan dialog eksplorasi minat dan eksplorasi data prospek karir digital. Peninjauan rekam jejak nilai rapor matematika dan informatika (rata-rata 92.5).',
                 'tindak_lanjut_evaluasi' => 'Siswa menyusun portofolio prestasi dan materi diskusi keluarga; dijadwalkan sesi pendampingan keluarga jika diperlukan.',
                 'status'                 => 'Dalam Pemantauan',
             ],
@@ -965,9 +965,9 @@ class DatabaseSeeder extends Seeder
                 'guru_id'                => $guruUser->id,
                 'tanggal'                => date('Y-m-d', strtotime('-26 days')),
                 'kategori'               => 'Pribadi',
-                'keluhan_masalah'        => 'Kecemasan akademik (academic anxiety) yang bermanifestasi pada ketegangan fisik saat presentasi individu di depan kelas.',
-                'layanan_diberikan'      => 'Teknik relaksasi pernapasan diafragma 4-7-8, latihan desensitisasi sistematis, serta afirmasi diri positif.',
-                'tindak_lanjut_evaluasi' => 'Siswa mempraktikkan latihan pernapasan sebelum berbicara di depan kelas; terpantau lebih percaya diri saat penilaian formatif.',
+                'keluhan_masalah'        => 'Kekhawatiran saat presentasi yang menurunkan rasa percaya diri saat berbicara di depan kelas.',
+                'layanan_diberikan'      => 'Latihan ketenangan konsentrasi, pembiasaan berbicara di depan cermin, serta afirmasi diri positif.',
+                'tindak_lanjut_evaluasi' => 'Siswa mempraktikkan latihan ketenangan sebelum berbicara di depan kelas; terpantau lebih percaya diri saat penilaian formatif.',
                 'status'                 => 'Selesai / Teratasi',
             ],
             [
@@ -1005,8 +1005,8 @@ class DatabaseSeeder extends Seeder
                 'guru_id'                => $guruUser->id,
                 'tanggal'                => date('Y-m-d', strtotime('-6 days')),
                 'kategori'               => 'Karir',
-                'keluhan_masalah'        => 'Kurangnya pemahaman mengenai linimasa dan kriteria seleksi mahasiswa baru jalur prestasi SNBP di Fakultas Kedokteran PTN.',
-                'layanan_diberikan'      => 'Pemberian informasi karir komprehensif: pemaparan matriks bobot mata pelajaran pendukung prodi Kedokteran (Biologi dan Kimia) serta pentingnya stabilitas tren nilai rapor.',
+                'keluhan_masalah'        => 'Kurangnya pemahaman mengenai linimasa dan kriteria seleksi mahasiswa baru jalur prestasi SNBP di fakultas sains unggulan PTN.',
+                'layanan_diberikan'      => 'Pemberian informasi karir komprehensif: pemaparan matriks bobot mata pelajaran pendukung rumpun sains (Biologi dan Kimia) serta pentingnya stabilitas tren nilai rapor.',
                 'tindak_lanjut_evaluasi' => 'Siswa menyusun target nilai minimal tiap semester dan bergabung dalam tim pembinaan olimpiade sains sekolah.',
                 'status'                 => 'Dalam Pemantauan',
             ],
@@ -1026,7 +1026,7 @@ class DatabaseSeeder extends Seeder
                 'tanggal'                => date('Y-m-d', strtotime('-8 days')),
                 'kategori'               => 'Belajar',
                 'keluhan_masalah'        => 'Kejenuhan belajar (burnout) yang dipicu oleh ekspektasi pribadi yang terlalu perfeksionis pada mata pelajaran eksakta.',
-                'layanan_diberikan'      => 'Konseling kognitif restrukturisasi standar keberhasilan: membedakan antara perfeksionisme neurotik dan striving for excellence, serta penjadwalan hobi seni kaligrafi.',
+                'layanan_diberikan'      => 'Bimbingan penetapan target belajar rasional: mengelola ekspektasi nilai secara bertahap dan menyeimbangkan jadwal hobi seni kaligrafi.',
                 'tindak_lanjut_evaluasi' => 'Siswa merasa beban mental berkurang dan dapat kembali menikmati proses belajar tanpa kecemasan berlebih.',
                 'status'                 => 'Selesai / Teratasi',
             ],
@@ -1173,7 +1173,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'user_id'     => $guruUser->id,
-                'title'       => 'Kunjungan Rumah (Home Visit): Pendampingan Kesehatan Mental & Lingkungan Belajar',
+                'title'       => 'Kunjungan Rumah (Home Visit): Pendampingan Penyesuaian Diri & Lingkungan Belajar',
                 'event_date'  => date('Y-m-d', strtotime('+18 days')),
                 'start_time'  => '13:30',
                 'end_time'    => '15:30',
@@ -1329,7 +1329,7 @@ class DatabaseSeeder extends Seeder
         AppNotification::create([
             'user_id'    => $user5->id,
             'title'      => 'Jadwal Konseling Disetujui',
-            'message'    => 'Guru BK telah menyetujui sesi bimbingan roadmap karir kedokteran pada ' . date('d M Y', strtotime('+2 days')) . ' di Ruang Konseling BK 2.',
+            'message'    => 'Guru BK telah menyetujui sesi bimbingan roadmap karir sains pada ' . date('d M Y', strtotime('+2 days')) . ' di Ruang Konseling BK 2.',
             'url'        => '/siswa/counseling',
             'type'       => 'counseling',
             'is_read'    => false,

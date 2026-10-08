@@ -149,6 +149,40 @@
             this.selectedDateStr = dateStr;
         },
 
+        conflictWarning: '',
+        isCheckingConflict: false,
+
+        async checkFormConflict(isEdit = false) {
+            if (!this.formDate || !this.formStartTime) {
+                this.conflictWarning = '';
+                return;
+            }
+            this.isCheckingConflict = true;
+            try {
+                const params = new URLSearchParams({
+                    date: this.formDate,
+                    start_time: this.formStartTime,
+                    end_time: this.formEndTime || '',
+                });
+                if (isEdit && this.selectedEvent && this.selectedEvent.source_type === 'event') {
+                    params.append('exclude_event_id', this.selectedEvent.source_id);
+                }
+                const res = await fetch(`/api/schedule/check-conflict?${params.toString()}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                if (data.has_conflict) {
+                    this.conflictWarning = data.message;
+                } else {
+                    this.conflictWarning = '';
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                this.isCheckingConflict = false;
+            }
+        },
+
         openAddForDate(dateStr) {
             this.formDate = dateStr || this.selectedDateStr;
             this.formTitle = '';
@@ -157,7 +191,9 @@
             this.formLocation = 'Ruang Konseling BK 1';
             this.formCategory = 'Konseling';
             this.formDescription = '';
+            this.conflictWarning = '';
             this.openCreateModal = true;
+            this.$nextTick(() => { this.checkFormConflict(false); });
         },
 
         showDetail(ev) {
@@ -174,8 +210,10 @@
             this.formLocation = ev.location;
             this.formCategory = ev.category;
             this.formDescription = ev.description;
+            this.conflictWarning = '';
             this.openDetailModal = false;
             this.openEditModal = true;
+            this.$nextTick(() => { this.checkFormConflict(true); });
         },
 
         getCategoryBadgeClass(cat) {
@@ -205,8 +243,38 @@
     <!-- Alert Messages -->
     @if(session('success'))
         <div class="bg-[#D9F9DF] border border-[#BBF7D0] text-[#14532D] text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
-            <span>{{ session('success') }}</span>
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span>{{ session('success') }}</span>
+            </div>
             <button type="button" onclick="this.parentElement.remove()" class="text-[#14532D] font-bold">&times;</button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 font-bold text-lg">&times;</button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs font-semibold">
+            <div class="flex flex-col gap-1">
+                <span class="font-bold flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Terjadi kesalahan input:
+                </span>
+                <ul class="list-disc list-inside space-y-0.5">
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 font-bold text-lg">&times;</button>
         </div>
     @endif
 
@@ -563,7 +631,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Tanggal Pelaksanaan</label>
-                        <input type="date" name="event_date" x-model="formDate" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]" required>
+                        <input type="date" name="event_date" x-model="formDate" @change="checkFormConflict(false)" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Kategori Kegiatan</label>
@@ -580,11 +648,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Jam Mulai</label>
-                        <input type="text" name="start_time" x-model="formStartTime" placeholder="08:00" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
+                        <input type="text" name="start_time" x-model="formStartTime" @input.debounce.300ms="checkFormConflict(false)" @change="checkFormConflict(false)" placeholder="08:00" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Jam Selesai</label>
-                        <input type="text" name="end_time" x-model="formEndTime" placeholder="09:30" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
+                        <input type="text" name="end_time" x-model="formEndTime" @input.debounce.300ms="checkFormConflict(false)" @change="checkFormConflict(false)" placeholder="09:30" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
                     </div>
                 </div>
 
@@ -596,6 +664,16 @@
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Keterangan / Uraian Agenda</label>
                     <textarea name="description" x-model="formDescription" rows="3" placeholder="Uraian sasaran kegiatan..." class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]"></textarea>
+                </div>
+
+                <!-- Banner Peringatan Bentrok Real-Time -->
+                <div x-show="conflictWarning" x-cloak class="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-xs text-amber-900 flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div class="space-y-1">
+                        <span class="font-bold text-amber-950 block text-xs">Peringatan Jadwal Bentrok!</span>
+                        <p class="font-medium text-amber-900" x-text="conflictWarning"></p>
+                        <span class="text-[11px] text-amber-800 block">Jadwal pada jam tersebut sudah terisi. Anda disarankan memindahkan jam atau tanggal agar kegiatan tidak bertabrakan.</span>
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-3 border-t border-[#E2E8F0]">
@@ -629,7 +707,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Tanggal Pelaksanaan</label>
-                        <input type="date" name="event_date" x-model="formDate" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]" required>
+                        <input type="date" name="event_date" x-model="formDate" @change="checkFormConflict(true)" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Kategori Kegiatan</label>
@@ -646,11 +724,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Jam Mulai</label>
-                        <input type="text" name="start_time" x-model="formStartTime" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
+                        <input type="text" name="start_time" x-model="formStartTime" @input.debounce.300ms="checkFormConflict(true)" @change="checkFormConflict(true)" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Jam Selesai</label>
-                        <input type="text" name="end_time" x-model="formEndTime" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
+                        <input type="text" name="end_time" x-model="formEndTime" @input.debounce.300ms="checkFormConflict(true)" @change="checkFormConflict(true)" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]">
                     </div>
                 </div>
 
@@ -662,6 +740,16 @@
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-[#475569] mb-1.5">Keterangan / Uraian Agenda</label>
                     <textarea name="description" x-model="formDescription" rows="3" class="w-full px-4 py-2.5 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#9FA1FF] text-[#1E293B]"></textarea>
+                </div>
+
+                <!-- Banner Peringatan Bentrok Real-Time -->
+                <div x-show="conflictWarning" x-cloak class="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-xs text-amber-900 flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div class="space-y-1">
+                        <span class="font-bold text-amber-950 block text-xs">Peringatan Jadwal Bentrok!</span>
+                        <p class="font-medium text-amber-900" x-text="conflictWarning"></p>
+                        <span class="text-[11px] text-amber-800 block">Jadwal pada jam tersebut sudah terisi. Anda disarankan memindahkan jam atau tanggal agar kegiatan tidak bertabrakan.</span>
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-3 border-t border-[#E2E8F0]">

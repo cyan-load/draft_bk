@@ -58,6 +58,20 @@ class StudentCounselingController extends Controller
 
         $category = in_array($request->category, ['Karir', 'Karier']) ? 'Karir' : $request->category;
 
+        // Cek apakah jadwal bentrok dengan agenda guru atau konseling yang sudah ada
+        $conflict = \App\Services\ScheduleConflictService::checkConflict(
+            $request->preferred_date,
+            $request->preferred_time
+        );
+
+        if ($conflict) {
+            $msg = "Peringatan Jadwal Bentrok! Pada waktu tersebut Guru BK sudah memiliki agenda: \"{$conflict['title']}\" ({$conflict['time']}). Silakan pilih waktu atau hari lain agar pengajuan Anda dapat langsung disetujui.";
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return back()->withInput()->with('error', $msg);
+        }
+
         $session = CounselingSession::create([
             'student_id' => $student->id,
             'category' => $category,
